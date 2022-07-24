@@ -32,16 +32,15 @@ HTML 元素以**开始标签`<label>`**起，素以**结束标签**`</label>`终
 </html>
 ```
 
-文档声明+根+头+体
 
-* 文档声明：`!DOCTYPE html`：声明本文档为Html4文档，不区分大小写
 
+结构
+
+* 文档声明：`!DOCTYPE html`
 * 根标签：`<html>`：网页的根标签
-
-* 头：`<head`>，定义html的元数据部分，在其中可以插入脚本（scripts）、样式文件（CSS）等。
+* 头：`<head`>，定义html的元数据部分，在其中可以插入脚本（scripts）、样式文件（style）等。
   * title：网页在工具栏、收藏夹显示的标题，**是必须具备的标签**
   * meta：声明字符编码
-  
 * 体：`<body>`，**定义可见的页面内容**
 
 
@@ -185,7 +184,14 @@ td标签的常用属性：
 
 ## 超链接
 
-超链接：格式为`<a href="your link" target="xxx">content</a>`。href若指向外部链接，需要在前面加上`https://`，否则默认为相对路径跳转。内容部分也可以是图片。
+格式：`<a href="your link" target="xxx">content</a>`。
+
+* href**默认为相对路径跳转，若指向外部链接**，指定完整路径`https://`
+* target 规定打开的方式 
+
+
+
+
 
 使用了超链接的文字下面会有一道下划线，可以设置样式取消。
 
@@ -194,6 +200,10 @@ a{
     text-decoration:none;
 }
 ```
+
+
+
+
 
 a标签也可以设置锚点，跳转到页面具体的某一个地方。
 
@@ -230,77 +240,53 @@ div
 
 ## 表单
 
-表单：使用标签` <form> `来设置，是一个**包含若干表单元素的区域**，`<form>`标签本身不会被显示，**但表单元素会被显示**。提交时会将标签内的所有元素与键值对形式提交，默认是GET。
-
-表单元素均是`input`标签，设置`type`类型可分为文本域(text)、单选框(radio)、复选框(checkbox)、提交按钮（submit）。
-
-
-
-文本域：text；passwowd。用户名、密码输入。
-
-元素的name在提交表单时会以字典的形式，`{name:value}`。这就是**设置name的作用**。 
+表单：使用标签` <form> `来设置，是一个**包含若干表单元素的区域**，`<form>`标签本身不会被显示，**但表单元素会被显示**。
 
 ```html
 <form>
-<!type确定了输入类型；password不会对用户密码进行明文显示;提交按钮>
-username: <input type="text" name="firstname"><br>
-Password: <input type="password" name="pwd">
-<input type="submit" value="Submit">
 </form>
 ```
 
-单选框：radio
+
+
+表单元素均是`input`标签
+
+* `type`：元素类型，分为 文本域(text)、单选框(radio)、复选框(checkbox)、提交按钮（submit）。
+* `name`：提交表单时的键 
+* `value`：提交表单时的值 
+
+表单提交:form 的`action`属性定义了负责处理表单内容的地址，`method`表示表单的提交方式。提交时会将标签内的所有元素与键值对形式提交。
+
+
 
 ```html
-<form>
+<form action="html_form_action.php" method="get">
+<!text 文本域>
+username: <input type="text" name="firstname"><br>
+    
 <!单选框必须保证name一致，否则会失去单选的效果>
 <input type="radio" name="sex" value="male">Male<br>
 <input type="radio" name="sex" value="female" checked='checked'>Female
-</form>
-```
-
-复选框：checkbox
-
-```html
-<form>
+    
 <!复选框示例>    
 <input type="checkbox" name="vehicle" value="Bike">I have a bike<br>
 <input type="checkbox" name="vehicle" value="Car">I have a car
-</form>
-```
 
-文件上传： file
-
-```html
+ 
+<!文件上传>  
 <form>选择文件<input type="file"></form>
-```
 
-下拉框选择：[select](https://www.w3school.com.cn/tags/tag_select.asp)。`<option>`为实际可选项 
-
-```html
+<!复选框>      
 <select>
     <option value="volvo">Volvo</option>
     <option value="saab">Saab</option>
     <option value="mercedes">Mercedes</option>
     <option value="audi">Audi</option>
 </select>
-```
 
-
-
-提交：submit。当用户单击确认按钮时，表单元素的内容会被传送到另一个文件。表单的`action`属性定义了负责处理表单内容的地址，`method`表示表单的提交方式。
-
-```html
-<form name="input" action="html_form_action.php" method="get">
-Username: <input type="text" name="user">
+<!提交按钮>    
 <input type="submit" value="Submit">
-</form> 
-```
-
-重置：reset。重置reset所属form表单的所有元素内容。value属性为表单元素显示文字。
-
-```html
-<form><input type="reset" value="重置"></form>
+</form>
 ```
 
 
@@ -315,7 +301,9 @@ Username: <input type="text" name="user">
 
 行内元素、块元素也可以通过样式属性重新设置，`style:"display:inline|block"` 。
 
-## 清楚浏览器默认样式
+
+
+## 清除浏览器默认样式
 
 ```css
 a,
@@ -422,7 +410,6 @@ CSS样式：层叠样式表(Cascading Style Sheets)，渲染html标签。
 
   ```html
   <p style="font-family:arial;color:red;font-size:20px;">更改断过的字体，颜色，字体大</p>
-  <div style="text-align:center;">居中对齐的标题</div>
   ```
   
 * 嵌入样式：在html的头部`<head>`声明`<style>`标签，该html文档内都可以使用该样式。
@@ -430,13 +417,14 @@ CSS样式：层叠样式表(Cascading Style Sheets)，渲染html标签。
   ```html
   <head>
       <style type="text/css">
-          body {background-color:yellow;}
-          p {color:blue;}
+          .hollis{
+              color:blue;
+          }
       </style>
   </head>
   ```
 
-* 外部样式：通过link标签连接到外部样式文件，使用时与嵌入样式无异。 rel属性表示引入的是一个样式表，必需属性。
+* 外部样式：通过head中的link标签连接到外部样式文件， rel属性表示引入的是一个样式表，必需属性。
 
   ```html
   <head>
@@ -468,7 +456,7 @@ css选择器：寻找指定的HTML元素的方法，然后为其应用样式。
 
 ### 标签选择器
 
-**标签选择器：** 以`lable_name{key:value;...}`  的格式定义1个标签的样式。作用域为全文档，**创建该标签即生效。**可以自定义标签，也可以内置标签重名。
+**标签选择器：**以标签名开头，针对所有应用该标签的元素 
 
 ```html
 <style>
@@ -483,7 +471,7 @@ css选择器：寻找指定的HTML元素的方法，然后为其应用样式。
 
 ### id选择
 
-**id选择器：**以`#`开头定义，格式为`#id{key:value;}` ，标签使用`id=`属性调用。id可以重用，但不推荐。
+**id选择器：**以`#id`开头定义，针对对应id的元素 
 
 ```html
 <!DOCTYPE html>
@@ -508,7 +496,7 @@ css选择器：寻找指定的HTML元素的方法，然后为其应用样式。
 
 ### 类选择器
 
-**类选择器：**以`.`开头定义，格式为`.clsName{key:value;}`，标签使用`class=`属性调用。最常使用的选择器。
+**类选择器：**以`.clsName`开头定义，
 
 ```html
 <!DOCTYPE html>
@@ -536,7 +524,9 @@ css选择器：寻找指定的HTML元素的方法，然后为其应用样式。
 
 ### 层级选择器
 
-**层级选择器：** 父子样式，以`.parentCls .childCls{key:value}`的形式（空格分隔父子）定义，深度可以大于2，可以配合标签选择器。**子样式只有在父样式被调用的情况下才可见。**
+**层级选择器：** 父子样式，以`.parentCls .childCls {key:value}`的形式定义，空格分隔父子，深度可以大于2。
+
+**子样式只有在父样式被调用的情况下才可见。**
 
 使用层级选择器可以避免命名冲突，因为相当于增加了类名前缀。
 
@@ -572,7 +562,7 @@ css选择器：寻找指定的HTML元素的方法，然后为其应用样式。
 
 ### 组选择器
 
-**组选择器**：`.cls1,.cls2 [,..]{key:value;}`的形式（逗号分隔多个选择器）**一次性设置（创建）多个选择器的共有样式**，允许各个选择器在之后**补充定义**（继承共有属性的前提下）、**覆盖定义**（属性名与共有属性重名）。
+**组选择器**：`.cls1,.cls2 [,..]{key:value;}`的形式，逗号分隔多个选择器，**一次性设置（创建）多个选择器的共有样式，允许各个选择器在之后补充、重写**。
 
 ```html
 <!DOCTYPE html>
@@ -603,7 +593,7 @@ css选择器：寻找指定的HTML元素的方法，然后为其应用样式。
 
 ### 属性选择器
 
-**属性选择器：**以`clsName[attr:value]{key:value}`的形式定义，**先找到该类，再看是否应用了指定了属性，若是，就应用样式**。
+**属性选择器：**以`clsName[attr:value]`的形式定义，**先找到该元素，再看是否应用了指定了属性，若是，就应用样式**。
 
 ```html
 <!DOCTYPE html>
@@ -627,7 +617,9 @@ username<input type="text">
 
 ### 伪类选择器
 
-**伪类选择器：**以`selector:pseudo {key:value;}`的形式定义，**冒号前后不能有空格**。可以理解伪类为一种装饰效果（类python的装饰器）。常见的伪类选择器有hover（定义鼠标悬停时的动作）、[first-child](https://www.runoob.com/css/css-pseudo-classes.html) 等。
+**伪类选择器：**以`selector:pseudo`的形式定义，**冒号前后不能有空格**。可以理解伪类为一种装饰效果。
+
+常见的伪类选择器有hover（定义鼠标悬停时的动作）、[first-child](https://www.runoob.com/css/css-pseudo-classes.html) 等。
 
 ```html
 <!DOCTYPE html>
@@ -1017,20 +1009,41 @@ video {
 
 JavaScript是一门**解释型脚本语言**，由浏览器解释执行，负责网页的行为。
 
-## 嵌入方式
+## 引入方式
 
-* 行间事件：`<input type="button" value="点我看看" onclick="alert('ok！');">`
+行间事件：`<input type="button" value="点我看看" onclick="alert('ok！');">`
 
-* script标签引入：
 
-  ```html
-  <script type="text/javascript">
-  alert('ok！');
-  </script>
-  
-  通过src属性外部引用
-  <script type="text/javascript" src="js/index.js"></script>
-  ```
+
+script标签引入：
+
+```html
+<script type="text/javascript">
+alert('ok！');
+</script>
+```
+
+script标签的src属性 引入外部脚本
+
+```javascript
+<script type="text/javascript" src="js/index.js"></script>
+```
+
+
+
+## 命名规范
+
+参考：https://www.cnblogs.com/Hsong/p/9016950.html 
+
+常量：大写，下划线间隔 
+
+变量：**小驼峰**，名词开头
+
+函数：小驼峰，动词开头
+
+类：大驼峰
+
+
 
 ## 变量
 
@@ -1058,6 +1071,12 @@ JavaScript 是一种**弱类型语言**，变量类型由它的值来决定。�
    ```
 
 7. undefined，变量定义但尚未赋值。
+
+
+
+数组、对象`{}`、`new()`出来的实例都是引用类型。
+
+
 
 使用`typeof var`语句判断变量类型，**返回类型的字符串形式**
 
@@ -1154,6 +1173,7 @@ var aList2 = [1,2,3]; //方法2
 * 子串：`.substring(start,end)`，左闭右开
 * 大小写：`toUpperCase()`、`toLowerCase()`
 * 反转：没有直接的办法，但可以通过数组间接实现。`s.split('').reverse().join('')` 
+* 格式控制：`a的值是：${a}`，反引号包裹`${变量}`。
 
 js中的字符串没有提供内置的格式化方法，但是可以自己编写。
 
@@ -1170,37 +1190,57 @@ String.prototype.format=function () {
 
 
 
-## 元素获取
+## DOM操作
 
-### 获取方法
+DOM是<span style="color:blue;font-weight:bold;">D</span>ocument <span style="color:blue;font-weight:bold;">O</span>bject  <span style="color:blue;font-weight:bold;">M</span>odel的缩写，意思是<span style="color:blue;font-weight:bold;">『文档对象模型』</span>——将HTML文档抽象成模型，再封装成对象方便用程序操作。
 
-* document.getElementById：获取页面上对应id的元素，返回一个html对象。**该id元素必须加载完后才可以获取到**，为了确保这个效果，做法有二：
 
-  1. 将js脚本放在元素定义后
 
-      ```html
-      <script type="text/javascript">
-        var oDiv = document.getElementById('div1');
-      </script>
+| HTML标签         | 元素节点 | Element |
+| ---------------- | -------- | ------- |
+| HTML标签内的文本 | 文本节点 | Text    |
+| HTML标签内的属性 | 属性节点 | Attr    |
 
-      <div id="div1">这是一个div 元素</div> 
-      ```
 
-  2. 将js脚本放在`window.onload=function()`里执行，该函数会在页面所有元素加载完后执行
 
-     ```html
-     <script type="text/javascript">
-     window.onload = function(){
-     	var oDiv = document.getElementById('div1');
-     }
-     </script>
-     ```
+### 元素获取
 
-* document.getElementsByTagName('tagName')：获取的是元素集合，但可以用下标的方式来操作。
+通过id、tagName等元素标识获取
 
-  ```javascript
-  var aLi = document.getElementsByTagName('li'); 
-  ```
+
+
+* id: document.getElementById：获取页面上对应id的元素，返回一个html对象。**该id元素必须加载完后才可以获取到**，为了确保这个效果，做法有二：
+
+* tagName：document.getElementsByTagName('tagName')：获取的是元素集合，但可以用下标的方式来操作。
+
+```javascript
+var aLi = document.getElementsByTagName('li'); 
+```
+
+
+
+1. 将js脚本放在元素定义后
+
+   ```html
+   <script type="text/javascript">
+     var oDiv = document.getElementById('div1');
+   </script>
+   
+   <div id="div1">这是一个div 元素</div> 
+   ```
+
+2. 将js脚本放在`window.onload=function()`里执行，该函数会在页面所有元素加载完后执行
+
+   ```html
+   <script type="text/javascript">
+   window.onload = function(){
+   	var oDiv = document.getElementById('div1');
+   }
+   </script>
+   ```
+
+
+
 
 
 ### 属性读写
@@ -1250,11 +1290,13 @@ world  第二行打印
 
 关于参数，js在实参个数不确定的情况下，可以使用每个func的内置变量`arguments`，它是一个类数组对象，收**集了全部实参**。
 
+
+
 ### 参数传递
 
 **js的参数传递与python的变量标签机制类似，都是隐式的按址传递，在作为实参传入函数时，内存会增加一个新的引用。**
 
-函数中，对于不可变类型，如整型、字符串，任何改变都将创建一个新的对象而不会影响原变量。**对于可变类型，原地修改，函数外也会受到影响。**
+函数中，对于不可变类型，如整型、字符串，任何改变都将创建一个新的对象而不会影响原变量。**对于可变类型，对象、数组，原地修改，函数外也会受到影响。**
 
 ### 作用域
 
@@ -1355,7 +1397,7 @@ try {
 
 ### this关键字
 
-1. 在对象方法中， **this 指向调用它所在方法的对象**。
+1. 在方法中， **this 指向调用方法的归属对象**。
 
    ```javascript
    var person = {
@@ -1369,9 +1411,7 @@ try {
    person.show();
    ```
 
-2.  单独使用 this，它指向全局(Global)对象。
-
-3.  函数使用中，**this 指向函数的所属者**。
+2. 单独使用 this，它指向全局(Global)对象。
 
 4.  严格模式(use strict)下函数是没有绑定到 this 上，这时候 this 是 undefined。
 
@@ -1404,7 +1444,7 @@ try {
    </script>
    ```
 
-6.  匿名函数 `()=>this`，可以访问到外面一层的this对象；而`function(){this}` 只能是里面的this；
+6.  匿名函数 `()=>this` 的`this`不会发生变化，和函数外的`this`指向相同 
 
 7. apply 和 call 允许切换函数执行的上下文环境（context），即 this 绑定的对象。
 
@@ -1660,49 +1700,53 @@ import customName from './export-default';
 
 
 
-## 命名规范
 
-参考：https://www.cnblogs.com/Hsong/p/9016950.html 
-
-常量：大写，下划线间隔 
-
-变量：**小驼峰**，名词开头
-
-函数：小驼峰，动词开头
-
-类：大驼峰
 
 
 
 ## 正则表达式
 
-### 语法
-
-语法：`/正则表达式主体/修饰符(可选)`，**没有加引号**。**头尾的斜杆`/表达式/`可以抑制js自身对`\`的转义，类似于python的`r'\w'`与`\\w`。**同时，`//` 包裹的字符串不再加上引号（引号被认为一个正常的字符来处理）。
+语法：`/正则表达式主体/修饰符(可选)`。
 
 ```javascript
-修饰符：i,无视大小写；g全局,不会遇到第一个匹配的就停下
-var patt = /runoob/i
+// //包裹的文本不需要加上引号 
+var patt = /runoob/i ; // 这将创建一个RegExp对象 
 ```
 
-正则表达式常用于字符串匹配  
+修饰符：
 
-```javascript
-var str = "Visit Runoob!"; 
-var n = str.search(/runoob/i); //6 返回字符串位置 注意到正则是小写的r
-n=str.replace(/runoob/i,'hollis!') //Visit hollis!!
-```
+* i，无视大小写
+* g全局，不会遇到第一个匹配的就停下
 
-### RegExp对象
 
-RegExp对象是一个**预定义了属性和方法的正则表达式对象**，类似python的`re.compile()`编译后的正则对象。但js的正则对象无需多此一举。
+
+正则元字符
+
+| 代码 | 说明                                                         |
+| ---- | ------------------------------------------------------------ |
+| .    | 匹配除换行字符以外的任意字符。                               |
+| \w   | 匹配字母或数字或下划线等价于[a-zA-Z0-9_]                     |
+| \W   | 匹配任何非单词字符。等价于[^A-Za-z0-9_]                      |
+| \s   | 匹配任意的空白符，包括空格、制表符、换页符等等。等价于[\f\n\r\t\v]。 |
+| \S   | 匹配任何非空白字符。等价于[^\f\n\r\t\v]。                    |
+| \d   | 匹配数字。等价于[0-9]。                                      |
+| \D   | 匹配一个非数字字符。等价于[^0-9]                             |
+| \b   | 匹配单词的开始或结束                                         |
+| ^    | 匹配字符串的开始，但在[]中使用表示取反                       |
+| $    | 匹配字符串的结束                                             |
+
+
+
+
+
+`//`将创建一个RegExp对象 ，即js里的正则对象 
 
 ```javascript
 var patt = /e/;
 patt.test("The best things in life are free!"); //直接调用了方法test
 ```
 
-常用对象方法：
+正则对象方法：
 
 * test(str)：检测str是否包含正则对象
 
@@ -1721,7 +1765,17 @@ function ischina(str) {
 /e(\b\w+\b)/.exec('The best things in life are free!') //['est','st']
 ```
 
+* `string.replace(reg,new)`
 
+  ```javascript
+  var str = 'one two three four';
+  var reg = /\s/g;
+  // 将空格替换为@
+  var newStr = str.replace(reg,'@'); // one@two@three@four
+  console.log("newStr="+newStr);
+  ```
+
+  
 
 ## JSON
 
@@ -1735,6 +1789,8 @@ JSON以`{}`包裹键值对，也就是python的字典形式。
 		]
 }
 ```
+
+
 
 js中负责处理json的两个函数：
 

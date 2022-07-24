@@ -156,11 +156,11 @@ Git用`<<<<<<<`，`=======`，`>>>>>>>`标记出不同分支的内容，一个�
 
 ```
 <<<<< branch0,current branch 
-something
+something on current branch 
 
 =======
 
-something 
+something on the branch to be merged 
 
 >>>>>>> branch1 to merge 
 ```
@@ -188,14 +188,14 @@ ssh-keygen # 本地生成密钥对 公钥放在github上
 git remote -v # 查看当前远程仓库 
 git remote add [remote_repo_shortname] [url] # 添加远程仓库 
 git remote rm [别名] # 删除远程仓库 
-git remote [origin] set-url [url] # 修改远程仓库url
+git remote set-url [origin]  [url] # 修改远程仓库url
 
 
 git fetch # 从远程获取代码库 
 git pull # 下载远程代码合并 
 git pull origin master # 下载origin的master分支
 git push # 上传远程代码并合并
-git pusb origin master # 上传到远程的master分支
+git push origin master # 上传到远程的master分支
 ```
 
 

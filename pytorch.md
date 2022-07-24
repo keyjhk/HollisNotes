@@ -1,3 +1,7 @@
+[toc]
+
+
+
 # 常用包
 
 ```python
@@ -842,6 +846,27 @@ for name,w in model.named_parameters():
 
 
 
+e.g. 
+
+```python
+def _reset_params(self):
+    initializers = {
+        'xavier_uniform_': torch.nn.init.xavier_uniform_,
+        'xavier_normal_': torch.nn.init.xavier_normal_,
+        'orthogonal_': torch.nn.init.orthogonal_,
+    }
+    initailizer = initializers[self.opt.initializer]
+    for name, p in self.model.named_parameters():
+        if 'word_embedding' in name:
+            continue # skip reset 
+        if p.requires_grad:
+            if len(p.shape) > 1:
+                initailizer(p)
+            else:
+                stdv = 1. / math.sqrt(p.shape[0])
+                torch.nn.init.uniform_(p, a=-stdv, b=stdv)
+```
+
 # 模型保存加载 
 
 网络和优化器有一个属性`.state_dict()`，称作状态字典，记录了各自的状态信息。
@@ -1350,7 +1375,7 @@ laynorm：在同一层上的神经元进行归一化，相当于特征向量以�
 
 输出大小的矩阵计算如下：$\frac{n-k+2p}{s}+1$ ，n是输入矩阵大小，k是卷积核尺寸，p是padding填充的大小（只算1边），s是卷积核每次移动的步长。
 
-通常，会设置多个卷积核，每个核有不同的权重矩阵，相当于用多种不同的方式提取了特征。 
+通常，会设置**多个卷积核，每个核有不同的权重矩阵，相当于用不同的方式提取了特征**。 
 
 ```python
 # out_channels=10 表示进行10个卷积核特征提取
@@ -1365,7 +1390,7 @@ nn.Conv2d(in_channels=1,out_channels=10,kernel_size=5)
 
 ## 池化层
 
-池化层可以简化卷积层的输出，相当于一个过滤器。池化层不需要padding填充，输出矩阵的大小为$\frac{n-f}{s}+1$  
+池化层可以简化卷积层的输出，**相当于一个过滤器**。池化层不需要padding填充，输出矩阵的大小为$\frac{n-f}{s}+1$  
 
 ```python
 import torch.nn.functional as F 
@@ -1393,7 +1418,7 @@ x=self.fc(x)
 
 参考：https://blog.csdn.net/sunny_xsc1994/article/details/82969867 
 
-1维卷积核适合词向量运算，词向量维度作为输入通道，序列长度作为卷积核滑动方向。
+1维卷积核适合词向量运算，**词向量维度作为通道大小**，序列长度作为卷积核滑动方向。
 
 例如，现有数据`batch,seq_len,embed_dim`，卷积核大小为`m`，则该卷积核实际大小为`m*embed_dim`（第二个维度是通道数目），则新的数据大小为`batch,?,out_channels` ，`?`表示该方向上需要卷积核滑动计算。
 
@@ -2919,9 +2944,15 @@ vocab.get_itos() # 得到itos 列表
 reproducility，意为可再生的。为了每次跑模型的结果基本一致，需要关闭一些随机源
 
 ```python
-np.random.seed(1) # 设置随机数种子可以确保之后的random函数返回相同结果
-torch.manual_seed(1)  # 为GPU设置随机数 
-torch.cuda.manual_seed_all(1) # 同上 用于多个GPU情况
+def reproduce(self, opt):
+    if opt.seed is not None:
+        random.seed(opt.seed)
+        numpy.random.seed(opt.seed)
+        torch.manual_seed(opt.seed)
+        torch.cuda.manual_seed(opt.seed)
+        torch.backends.cudnn.deterministic = True
+        torch.backends.cudnn.benchmark = False
+        os.environ['PYTHONHASHSEED'] = str(opt.seed)
 ```
 
 

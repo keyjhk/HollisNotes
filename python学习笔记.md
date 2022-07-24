@@ -1868,6 +1868,8 @@ print("%d天前的时间为%s"%(ago,str_time) )
 conda config --add channels https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/free/
 conda config --set show_channel_urls yes
 
+conda config --remove-key channels # 删除全部源
+
 # 查看当前通道 
 conda config --show channels 
 conda info 
@@ -1944,7 +1946,7 @@ conda install nb_conda # 让jupyter支持虚拟环境
 
 ```python
 #转义困扰
-import  re
+import re
 
 res=re.match('\\\\','\\').group()   #不使用r匹配反斜杆
 res1=re.match(r'\\','\\').group()   #使用r

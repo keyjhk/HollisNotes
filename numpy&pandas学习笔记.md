@@ -2872,7 +2872,7 @@ line.set_alpha(0.5) #设置0.5的透明度
 
 ### 图片样式
 
-设置图形大小，`plt.figure(num=None, figsize=None, dpi=None, facecolor=None, edgecolor=None, frameon=True)`，其中`num`是图的编号，`figsize`的单位是英寸，`dpi`是每英寸的像素点，`facecolor`是图片背景颜色，`edgecolor`是边框颜色，`frameon`代表是否绘制画板。
+设置图形大小，`plt.figure(num=None, figsize=None, dpi=None, facecolor=None, edgecolor=None, frameon=True)`，其中`num`是图的编号，**`figsize`的单位是英寸，`dpi`是每英寸的像素点**，与figsize组合可以计算图片总的像素大小。`facecolor`是图片背景颜色，`edgecolor`是边框颜色，`frameon`代表是否绘制画板。
 
 ```python
 plt.figure(figsize=(20,8),dpi=80)  

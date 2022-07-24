@@ -1,3 +1,7 @@
+[toc]
+
+
+
 # vscode配置 
 
 ## 插件安装
@@ -55,7 +59,7 @@ vue的快捷键查看方式：按下`crtl+k`然后迅速按下`crtl+s`就能打�
 用外部脚本的方式引入 
 
 ```html
-<script src="https://cdn.jsdelivr.net/npm/vue"></script>
+<script src="https://cdn.staticfile.org/vue/2.2.2/vue.min.js"></script>
 ```
 
 在`script`部分就可以使用vue
@@ -347,7 +351,7 @@ v-for="(item, index) in items" // item indx
 
 key属性的添加，方便vue能跟踪每个节点的身份，从而重用和重新排序现有元素。
 
-![img](../better/resources/3973616-25f6c171772b50b6.jpg) 
+![img](https://hollis-md.oss-cn-beijing.aliyuncs.com/img/3973616-25f6c171772b50b6.jpg) 
 
 
 
@@ -419,7 +423,7 @@ this.$refs.category
 
 
 
-vue为一些常用的事件修饰符提供了简化写法
+vue为一些常用的事件修饰符提供了简化写法，这会使methods里的方法专注于数据逻辑，而不是dom细节 
 
 1. `.prevent`，阻止默认事件 
 2. `.stop`：`event.stopPropagation`，**阻止事件冒泡（内层元素的点击事件会逐层冒泡到外层节点）**
@@ -427,6 +431,12 @@ vue为一些常用的事件修饰符提供了简化写法
 4. `.once`：这个事件只执行一次。
 5. `.self`：代表当前这个被点击的元素自身。
 6. `.passive`：在页面滚动的时候告诉浏览器不会阻止默认的行为，从而让滚动更加顺畅。
+
+```vue
+<div id="innerDiv" @click.stop="clickInnerDiv"></div>
+```
+
+
 
 
 
@@ -911,7 +921,7 @@ vue在模板编译时，**就会为该模板里的样式自动加上哈希**，�
 
 
 
-<img src="pictures/vue_lifecycle.png" alt="img" style="zoom: 50%;" />
+<img src="https://hollis-md.oss-cn-beijing.aliyuncs.com/img/vue_lifecycle.png" alt="img" style="zoom: 50%;" />
 
 
 
@@ -1025,7 +1035,7 @@ vue在模板编译时，**就会为该模板里的样式自动加上哈希**，�
 
 **当把普通的js对象作为vue的data时，vue将遍历对象的property，将其转为`getter/setter`，追踪其变化，通知watcher，重新渲染。**
 
-<img src="../better/resources/data.png" alt="img" style="zoom:50%;" /> 
+<img src="https://hollis-md.oss-cn-beijing.aliyuncs.com/img/data.png" alt="img" style="zoom:50%;" /> 
 
 ### 对象
 
@@ -1261,7 +1271,9 @@ MyPlugin.install = function (Vue, options) {
 
 
 
-## 全局变量引入方式
+## 引入
+
+### 全局变量引入
 
 ```js
 // main.js 文件中
@@ -1273,7 +1285,15 @@ Vue.prototype.$auth = auth; // 全局变量 使用的时候 this.$auth
 Vue.prototype.$global = global;
 ```
 
+### 外部css引入
 
+* 使用scss的`@import`语法，直接引入是全局样式，局部使用使用`scoped`关键字 
+* 在`index.html`中的`link`标签引入，将作为全局样式
+
+### 外部js引入
+
+* 在index.html中的`script`标签中引入，全局可用
+* `在main.js`中import导入
 
 # Vue-router
 
@@ -1873,7 +1893,7 @@ vue -V 或者 vue --version
 
 ### 项目结构介绍
 
-![img](pictures/vue-cli结构图.png)
+![img](https://hollis-md.oss-cn-beijing.aliyuncs.com/img/vue-cli%E7%BB%93%E6%9E%84%E5%9B%BE.png)
 
 1. `node_modules`：本地安装的包的文件夹。
 2. `public`：项目出口文件。
@@ -2079,7 +2099,7 @@ const store = new Vuex.Store({
 
 3. 将vscode中的右下角的语言模式改成vue
 
-   ![image-20201029171945898](pictures/vue更改语言模式.png)
+   ![image-20201029171945898](https://hollis-md.oss-cn-beijing.aliyuncs.com/img/vue%E6%9B%B4%E6%94%B9%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%BC%8F.png)
 
  
 

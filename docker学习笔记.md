@@ -34,7 +34,7 @@ docker restart <容器 ID>  # 重启容器
 进入容器 `exec`命令启动的容器，退出时不会停止
 
 ```shell
-docker exec
+docker exec -it Hollis  /bin/bash
 ```
 
 
@@ -90,3 +90,15 @@ netstat |grep :22
 docker exec -it Hollis  /bin/bash # 可以开启多个终端
 ```
 
+GPU使用情况
+
+```
+nvidia-smi
+```
+
+
+
+# account
+
+> 在AMAX 数据服务器 222.24.36.241  port 22   username lixiaoge      passwd:123456
+> 在DGX nvidia 服务器 222.24.36.240  port 22   username lixiaoge      passwd:123456
