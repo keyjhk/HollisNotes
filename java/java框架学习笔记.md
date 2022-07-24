@@ -3727,3 +3727,54 @@ public ResponseEntity<byte[]> downloadFile() {
 }
 ```
 
+
+
+## ContextLoaderListener
+
+当项目中整合多个框架时，例如 spring mvc 、mybatis等，全部配置写在 一个 文件中会显得冗长，需要配置文件的分离。
+
+分离的标准按照每个框架的功能分开：
+
+* 请求url相关：交给DispatcherServlet处理，作为一个单独的 配置文件
+* 持久化数据相关：交给mybatis、spring处理，作为一个单独的配置文件 
+
+这就需要使用 `ContextLoaderListener` 。 
+
+
+
+1. 创建各自的配置文件 ，mvc表示针对mvc相关的配置文件，persist表示持久层相关的配置文件
+
+   ![image-20220724101946856](https://hollis-md.oss-cn-beijing.aliyuncs.com/img/image-20220724101946856.png)
+
+2. 在persist配置文件中，创建 ContextLoaderListener
+
+   ```xml
+   <!-- 通过全局初始化参数指定 Spring 配置文件的位置 -->
+   <context-param>
+       <param-name>contextConfigLocation</param-name>
+       <param-value>classpath:spring-persist.xml</param-value>
+   </context-param>
+    
+   <listener>
+       <!-- 指定全类名，配置监听器 -->
+       <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+   </listener>
+   ```
+
+
+
+这样一来，在整个项目中，会存在两个ioc容器。**他们的关系是父子关系**，原因如下：
+
+- ContextLoaderListener：初始化时如果检查到有已经存在的根级别 IOC 容器，那么会抛出异常。
+- DispatcherServlet：初始化时先检查当前环境下是否存在已经创建好的 IOC 容器。
+  - 如果有：则将已存在的这个 IOC 容器设置为自己的父容器
+  - 如果没有：则将自己设置为 root 级别的 IOC 容器
+
+
+
+两个容器如果扫描的包有重复：
+
+1. 在创建bean对象的时候就会重复创建，浪费空间，所以建议是各自扫描不同的组件包。
+2. 尽管会创建两个bean对象，但是它们不完全一样，会有类似二义性的问题。因为它们属于两个不同的容器空间，子容器如果有，就会优先获取子容器的 
+
+所以，正如为什么要分离配置文件一样，**扫描包的侧重点也应该不一样**，mvc配置文件扫描handlers组件包，而persist配置文件则扫描service和dao组件包。**当它们扫描的包是彼此分离的时候，访问的原则是：子容器可以访问父容器的bean，反之，不行**。因为子容器里存在一个`getParent()`方法，可以获取到对父容器的引用。 

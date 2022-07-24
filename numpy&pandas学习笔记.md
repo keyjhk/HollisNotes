@@ -1,3 +1,7 @@
+---
+typora-copy-images-to: upload
+---
+
 [toc]
 
 
@@ -3021,7 +3025,7 @@ ax5.set_title("[2,1]")
 plt.tight_layout()
 ```
 
-![img](pictures/matplot多图布局png)
+![img](pictures/matplot多图布局.png)
 
 ### 双y轴 
 

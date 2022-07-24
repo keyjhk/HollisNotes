@@ -1,3 +1,7 @@
+---
+typora-copy-images-to: upload
+---
+
 
 
 [toc]
@@ -36,7 +40,7 @@ pip list     #列出当前系统的安装包
 
 在windows环境下，python需要调用Microsoft Visual C++ compiler编译器，尤其是在安装第三方包时候，会build项目，这时如果没有安装或者安装不协调的c++构建工具就会报错。 
 
-![image-20210124195825720](pictures/cpython与ms版本)
+![image-20210124195825720](https://hollis-md.oss-cn-beijing.aliyuncs.com/img/cpython%E4%B8%8Ems%E7%89%88%E6%9C%AC.png)
 
 安装c++ build tool，网上给出了多种方式：
 
@@ -1369,7 +1373,7 @@ A的初始化函数被调用
 
 
 
-![](pictures/类属性与实例属性.png)
+![](https://hollis-md.oss-cn-beijing.aliyuncs.com/img/%E7%B1%BB%E5%B1%9E%E6%80%A7%E4%B8%8E%E5%AE%9E%E4%BE%8B%E5%B1%9E%E6%80%A7.png)
 
 
 
@@ -2067,7 +2071,7 @@ logger.info(message)
 
 
 
-<img src="pictures/log日志格式.png" style="zoom:67%;" />
+<img src="https://hollis-md.oss-cn-beijing.aliyuncs.com/img/log%E6%97%A5%E5%BF%97%E6%A0%BC%E5%BC%8F.png" style="zoom:67%;" />
 
 
 
@@ -2235,7 +2239,7 @@ s.close()	#关闭该套接字
 
 ## UDP通信
 
-<img src="pictures/udp_socket.png" alt="udp_socket" style="zoom:67%;" />
+<img src="https://hollis-md.oss-cn-beijing.aliyuncs.com/img/udp_socket.png" alt="udp_socket" style="zoom:67%;" />
 
 收方双方的准备步骤：通信双方无需建立连接，准备好数据即可发送。对于发送方，事前准备好接收方的地址，**但是无需`bind`，因为系统会为进程随机分配1个端口。**在进程结束前，该端口不会改变。
 
@@ -2337,7 +2341,7 @@ if __name__ == '__main__':
 
 
 
-<img src="pictures/tcp_socket.png" style="zoom:80%;" />
+<img src="https://hollis-md.oss-cn-beijing.aliyuncs.com/img/tcp_socket.png" style="zoom:80%;" />
 
 
 
@@ -2790,9 +2794,9 @@ HTTP的报文头：分为客户端到服务端的请求报文、服务端到客�
 
 报文格式：分为 “ 头部（header）+实体（body）”。头部又可分为“ 开始行+ 首部行 “
 
-<img src="pictures/HTTP请求报文.jpg" style="zoom:60%;" />
+<img src="https://hollis-md.oss-cn-beijing.aliyuncs.com/img/HTTP%E8%AF%B7%E6%B1%82%E6%8A%A5%E6%96%87.jpg" style="zoom:60%;" />
 
-<img src="pictures/HTTP响应报文 .jpg" style="zoom:70%;" />
+<img src="https://hollis-md.oss-cn-beijing.aliyuncs.com/img/HTTP%E5%93%8D%E5%BA%94%E6%8A%A5%E6%96%87%20.jpg" style="zoom:70%;" />
 
 
 
@@ -2830,7 +2834,7 @@ NAT穿透的手段就是**让通信双方知道对方的公网IP，进而绕过s
 
 NAT的类型有很多，这里简单考虑，假设AB主机在会话期间始终被路由器映射为同一个公网 `(IP:PORT)`，则可令中间服务器server，分别收取AB的信息，得到AB的公网IP地址（源IP地址在路由过程中不会被更改）并保存，然后将双方公网IP发送给彼此。在AB都知道对方的公网IP后，便可以实现“ 打洞 ”效果，直接通信。
 
-![](pictures/NAT穿透.png)
+![](https://hollis-md.oss-cn-beijing.aliyuncs.com/img/NAT%E7%A9%BF%E9%80%8F.png)
 
 
 

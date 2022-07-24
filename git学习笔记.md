@@ -14,7 +14,7 @@ git config --global user.email test@runoob.com
 
 # 分区
 
-![img](D:\我的坚果云\学习笔记\better\resources\git-command.jpg)
+![img](https://hollis-md.oss-cn-beijing.aliyuncs.com/img/git-command.jpg)
 
 
 
@@ -24,7 +24,7 @@ git config --global user.email test@runoob.com
 
 
 
-![img](D:\我的坚果云\学习笔记\better\resources\1352126739_7909.jpg)
+![img](https://hollis-md.oss-cn-beijing.aliyuncs.com/img/1352126739_7909.jpg)
 
 HEAD当前指向master分支，objects表示git对象，存储了各种必要信息。
 
