@@ -438,16 +438,16 @@ idea中创建maven工程的操作基本符合直觉，唯一需要注意的是�
 
 
 
-# Mybaits
+# Mybatis
 
 mybaits：一个具备ORM(Object Relataion Mapping)的java持久层框架。所谓ORM，就是将数据库的表映射为编程语言中的类。一个表对应了一个class，字段对应类属性，而每一行数据就对应类的每一个实例对象。
 
 mybaits对比JDBC：
 
-| JDBC                                                         | mybatis                                         |
-| ------------------------------------------------------------ | ----------------------------------------------- |
-| 在DAO层，硬编码了大量的sql语句，和java源码混合在一块，不利于后期维护 | 将sql语句编写在xml配置文件，实现源码和sql的分离 |
-| 手动编写连接创建、sql语句参数确定、结果集解析等从操作，代码冗长 | 几乎避免了JDBC的操作                            |
+| mybatis                                         | JDBC                                                         |
+| ----------------------------------------------- | ------------------------------------------------------------ |
+| 将sql语句编写在xml配置文件，实现源码和sql的分离 | 在DAO层，硬编码了大量的sql语句，和java源码混合在一块，不利于后期维护 |
+| 几乎避免了JDBC的操作                            | 手动编写连接创建、sql语句参数确定、结果集解析等从操作，代码冗长 |
 
 
 
@@ -3729,7 +3729,152 @@ public ResponseEntity<byte[]> downloadFile() {
 
 
 
-## ContextLoaderListener
+## 框架整合 
+
+### spring 和 mybatis整合
+
+依赖框架： mybatis-spring  ， [官方介绍](http://mybatis.org/spring/zh/index.html) 
+
+该框架负责整合，spring和mybatis各自需要的包，仍然要引入
+
+```xml
+<!-- https://mvnrepository.com/artifact/org.mybatis/mybatis-spring -->
+<dependency>
+    <groupId>org.mybatis</groupId>
+    <artifactId>mybatis-spring</artifactId>
+    <version>2.0.6</version>
+</dependency>
+```
+
+整合之下的配置文件结构如下：
+
+![image-20220724145519897](https://hollis-md.oss-cn-beijing.aliyuncs.com/img/image-20220724145519897.png)
+
+他们的作用为：
+
+* spring-persist：容器相关，指定数据源DataSource、配置SqlSessionFactoryBean、**扫描mappers接口类** 
+* mybatis-config： mybatis的相关配置，仅仅保留一些必要的设置 
+* jbbc.properties：数据库连接相关信息  
+
+
+
+各自的详细信息内容
+
+jbbc.properties 文件
+
+```properties
+jdbc.user=root
+jdbc.password=atguigu
+jdbc.url=jdbc:mysql://192.168.198.100:3306/mybatis-example
+jdbc.driver=com.mysql.jdbc.Driver
+```
+
+mybatis-config.xml ：对比直接使用[mybatis框架](#Mybatis)可以发现，**mappers.xml文件的装备这些步骤在spring框架整合中，都交给了bean容器的spring配置文件处理**
+
+```xml
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+
+    <!-- Mybatis全局配置 -->
+    <settings>
+        <!-- 将数据库表字段映射到驼峰式命名的Java实体类属性中 -->
+        <!-- 数据库表字段格式：单词_单词 -->
+        <!-- Java实体类属性：首字母小写的驼峰式命名 -->
+        <setting name="mapUnderscoreToCamelCase" value="true"/>
+    </settings>
+
+</configuration>
+```
+
+spring-persist.xml ： 为了使用容器的思想，所以要在spring配置文件中，扫描mappers接口所在包 
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/context https://www.springframework.org/schema/context/spring-context.xsd http://www.springframework.org/schema/mvc https://www.springframework.org/schema/mvc/spring-mvc.xsd">
+
+
+    <!-- 加载外部属性文件 -->
+    <context:property-placeholder location="classpath:jdbc.properties"/>
+
+    <!-- 配置数据源  用于获取connection-->
+    <bean id="druidDataSource" class="com.alibaba.druid.pool.DruidDataSource">
+        <property name="username" value="${jdbc.user}"/>
+        <property name="password" value="${jdbc.password}"/>
+        <property name="driverClassName" value="${jdbc.driver}"/>
+        <property name="url" value="${jdbc.url}"/>
+    </bean>
+
+    <!-- 配置 SqlSessionFactoryBean -->
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+
+        <!-- 指定 Mybatis 全局配置文件位置 -->
+        <property name="configLocation" value="classpath:mybatis-config.xml"/>
+
+        <!-- 指定 Mapper 配置文件位置 -->
+        <property name="mapperLocations" value="classpath:mappers/*Mapper.xml"/>
+
+        <!-- 装配数据源 -->
+        <property name="dataSource" ref="druidDataSource"/>
+
+    </bean>
+
+    <!-- 配置 Mapper 接口类型的bean的扫描器 -->
+    <bean id="mapperScannerConfigurer" class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <property name="basePackage" value="com.hollis.mappers"/>
+    </bean>
+    
+
+</beans>
+```
+
+在配置mapper接口扫描器时，可以简写如下：
+
+```xml
+<mybatis-spring:scan base-package="com.hollis.mappers"/>
+```
+
+`*Mapper.xml` 文件和Mapper接口类等，依旧遵循mybatis框架的那一套规则。结构和内容如下：
+
+<img src="https://hollis-md.oss-cn-beijing.aliyuncs.com/img/image-20220724150623050.png" alt="image-20220724150623050" style="zoom:67%;" />
+
+
+
+Mapper接口示例：
+
+```java
+public interface EmpMapper {
+    List<Employee> selectAll();
+}
+```
+
+与其对应的empMapper.xml 文件 
+
+```xml
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.hollis.mappers.EmpMapper">
+
+    <!-- List<Emp> selectAll(); -->
+    <select id="selectAll" resultType="com.hollis.Entity.Employee">
+        select emp_id,emp_name,emp_salary from t_emp
+    </select>
+
+</mapper>
+```
+
+
+
+### spring 和 spring mvc 整合
 
 当项目中整合多个框架时，例如 spring mvc 、mybatis等，全部配置写在 一个 文件中会显得冗长，需要配置文件的分离。
 
@@ -3746,7 +3891,7 @@ public ResponseEntity<byte[]> downloadFile() {
 
    ![image-20220724101946856](https://hollis-md.oss-cn-beijing.aliyuncs.com/img/image-20220724101946856.png)
 
-2. 在persist配置文件中，创建 ContextLoaderListener
+2. 在web.xml配置文件中，创建 ContextLoaderListener
 
    ```xml
    <!-- 通过全局初始化参数指定 Spring 配置文件的位置 -->
@@ -3761,7 +3906,13 @@ public ResponseEntity<byte[]> downloadFile() {
    </listener>
    ```
 
+3. spring-mvc配置文件中，修改为 仅仅扫描handler包 
 
+   ```xml
+   <context:component-scan base-package="com.hollis.handlers"/>
+   ```
+
+   
 
 这样一来，在整个项目中，会存在两个ioc容器。**他们的关系是父子关系**，原因如下：
 
@@ -3778,3 +3929,6 @@ public ResponseEntity<byte[]> downloadFile() {
 2. 尽管会创建两个bean对象，但是它们不完全一样，会有类似二义性的问题。因为它们属于两个不同的容器空间，子容器如果有，就会优先获取子容器的 
 
 所以，正如为什么要分离配置文件一样，**扫描包的侧重点也应该不一样**，mvc配置文件扫描handlers组件包，而persist配置文件则扫描service和dao组件包。**当它们扫描的包是彼此分离的时候，访问的原则是：子容器可以访问父容器的bean，反之，不行**。因为子容器里存在一个`getParent()`方法，可以获取到对父容器的引用。 
+
+
+
