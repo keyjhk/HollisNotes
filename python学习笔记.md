@@ -6,11 +6,26 @@ typora-copy-images-to: upload
 
 [toc]
 
-# 关于python
 
-[python官方文档](https://docs.python.org/zh-cn/3.6/) 
 
-解释/编译：Python是一门解释型的跨平台语言，速度没有编译型语言快。**但并不完全是解释型语言**，解释器会先编译程序生成pyc文件，下次解释的时候就会快很多。
+# pip
+
+pip ：python的包管理工具，**可以用pip --version查看是否安装。**
+
+```shell
+pip install -r 文本    #安装指定文本中的包
+pip --default-timeout=100 install #更改等待时延
+pip install -i  网址    #安装指定网址的包
+pip uninstall      #卸载软件包
+pip freeze > requirements.txt      #导出系统已安装的包到文本中
+pip list     #列出当前系统的安装包
+```
+
+本地包的安装：`python setup.py install` 
+
+# 基础语法
+
+## 编码格式
 
 ```python
 #py文件编码格式声明：只要符合正则表达式的规则即可，以#开头
@@ -20,39 +35,6 @@ typora-copy-images-to: upload
 ```
 
 
-
-## pip
-
-pip ：python的包管理工具，**可以用pip --version查看是否安装。**
-
-```shell
-pip install -r 文本    #安装指定文本中的包
-pip --default-timeout=100 install #更改等待时延
-pip install -i  网址    #安装指定网址的包
-pip uninstall      #卸载软件包
-pip freeze >requirements.txt      #导出系统已安装的包到文本中
-pip list     #列出当前系统的安装包
-```
-
-本地包的安装：`python setup.py install` 
-
-## python和Microsoft Visual C++
-
-在windows环境下，python需要调用Microsoft Visual C++ compiler编译器，尤其是在安装第三方包时候，会build项目，这时如果没有安装或者安装不协调的c++构建工具就会报错。 
-
-![image-20210124195825720](https://hollis-md.oss-cn-beijing.aliyuncs.com/img/cpython%E4%B8%8Ems%E7%89%88%E6%9C%AC.png)
-
-安装c++ build tool，网上给出了多种方式：
-
-1、直接安装微软的visual studio 2015以及以上版本。
-
-2、不安装vs2015（以上），直接安装相应的build tools。
-
-3、直接安装c++2015 build tool的standlone版本。
-
-
-
-# 基础语法
 
 ## 用户交互
 
@@ -134,21 +116,14 @@ if(a and\
 
 * 四则运算：
 * 加法：整数算数相加； 字符串前后相连； 列表前后相连；
-  * 除法： /是真正的除法，//称作地板除法，相当于C语言里的int类型数据除法
-  * 乘法：整数相乘 ；列表/字符串自身复制
-* 幂运算：`a**(b)`，等效于$a^b$ 
-* 求余运算：%，另有内置函数`divmod(x,y)`，返回元组`x//Y,x%y`
+* 除法： /是真正的除法，//称作地板除法，相当于C语言里的int类型数据除法
+* 乘法：整数相乘 ；列表/字符串自身复制
+* 幂运算：`a**(b)` 
+* 求余运算：% 
 * 逻辑操作：and/not/or。**逻辑操作不会返回真假(true/false)，会返回为真的对象。**
 
-*  位运算符：&：与运算；|：或运算；^：异或运算；>>n，右移n位；<<n，左移n位 。 
+* 位运算符：&：与运算；|：或运算；^：异或运算；>>n，右移n位；<<n，左移n位 。 
 
-  * `bin(num)`：显示1个数的2进制，省略多余的0（pyhthon中的int没有位数限制），以1开头。但是对于负数，将显示为`-obxx`，前面添加负号，后面为正数，相当于原码形式，非补码形式。
-
-  计算1个数的2进制含有多少个1：计算机以补码形式存储数，当进行与`&`运算时，自动按照补码的形式位扩展（《计算机组成原理》），利用此点，可以快速统计1个数（无论正负）在计算机中的二进制中有多少个1，如`bin(num&0xffff).count('1')` ，就是计算1个64位数有多少个1。
-
-
-
-连续操作：**Python支持多个运算符之间的连续操作**，如`dict['func'](x,y,z)`
 
 
 
@@ -160,16 +135,15 @@ if(a and\
 
 * int型：不限位数，自动扩展。可以转换字符串到int，支持空0，如`int('5')==int('0005')`
 
-* float：最对存储17位有效数，超过则丢失精度，会自动使用科学计数法`xe+y`=$x*10^y$ ，+号不允许省略。
+* float：最对存储17位有效数
 
 * bool：if等语句会自动触发逻辑测试。
 
-  * int：1是True，0是False。python中用关键字`True/False`对其替换。如(3<4)==1将会返回True
   * ==（!=）：判断值相等（不相等）
   * is：判判断两个对象内存地址是否相同（又称完全一样）。单独查看变量地址，可用`id(变量)`查看 
   * 不等式判断：python里，可以像平时书写那样**连写不等式**，如3<x<5，就表示`x>3&&x<5`。
-
-* None对象：None虽然名字叫做None，但是却实际存在，在内存中占据空间，一般用作占位，相当于c语言的null。注意，`None!=False` 
+  
+* None对象：相当于其他编程语言的null
 
 * 进制：
 
@@ -280,7 +254,7 @@ if __name__ == '__main__':
 * `sum(obj，[,开始位置])`：序列元素求和
 * `max、min`：求最大值、最小值。若是字典，则只对键排序
 * `sorted(obj,[key=func,reverse=False])`：返回一个新的序列，默认从小到大升序排列。可以指定`key=func`关键字，自定义排序规则。
-  * `functools.cmp_to_key`：python3取消看了python2中sorted函数的cmp关键字参数，使用`key=cmp_to_key(myfunc)`转换到key关键字参数。查看python的文档可知，cmp函数接收`sorted`传入的两个比较对象x、y，函数内定义自己的升降序规则，`return -1 if (x在y前面的条件) else 1`  
+  * `functools.cmp_to_key`：查看python的文档可知，cmp函数接收`sorted`传入的两个比较对象x、y，函数内定义自己的升降序规则，`return -1 if (x在y前面的条件) else 1`  
 
 ```python
 """
@@ -300,8 +274,6 @@ sorted(student_tuples,key=cmp_to_key(cmp))
 ## 列表
 
 ### 常用操作
-
-
 
 * 访问：`list[index]`。index为负数时，表示访问倒数第index个数。**列表可以容纳任何类型元素的数据**。
 
@@ -326,11 +298,6 @@ a=[x  if x%2==0 else x**2 for x  in range(10)]
 
 
 * 分片：`list[start:end:step]`，步长可省略，**分片所得是一份浅拷贝的副本，只拷贝第一层**。
-
-  列表/元组的边界 
-
-  * 索引时，不能超出列表的上限，否则报错
-  * 分片时，**边界值会被自动处理，当超出列表范围时，会被自动缩放到列表的上限**，如一个5个元素的列表，a[-100:100]和a[:]是一样的。分片的起始序号一定小于终止序号，否则返回空的列表，如`a[-1:-4]=[]` 
 
 * 反转：（1）a.reverse()，原地反转（2）`a=a[::-1]` 
 * 算术运算：（1）list1+ list2会返回一个临时列表，该列表是两者的集合 (2)，list*次数，返回一个临时列表，该列表是自身复制相应次数后的扩展
@@ -386,7 +353,7 @@ d=copy.deepcopy(b)
 
 * 访问：和列表相同，采用中括号[]
 
-* 修改：不允许变量地址发生变化。换言之，原地不可变类型不允许修改，如果中间含有元素是原地可变类型，如列表、字典，他们是可以修改的。
+* 修改：**不允许变量地址发生变化**。换言之，原地不可变类型不允许修改，如果中间含有元素是原地可变类型，如列表、字典，他们是可以修改的。
 
   ```python
   In [1]: a=([1,],2)
@@ -413,7 +380,7 @@ d=copy.deepcopy(b)
 
 
 
-常用函数：**字符串不能原地修改，所以返回的是副本**（区别于列表的返回None）
+常用函数：**字符串不能原地修改，所以返回的是副本** 
 
 * `.ascii_letters`：返回一串字符串，字母表的大小写
 * `.digits`：返回一串字符串，为0-9数字，
@@ -473,7 +440,6 @@ d=copy.deepcopy(b)
       name='link'
       names=['jiang','hui']
       print("{name} {names[0]} {names[1]}".format(name=name,names=names)) 
-      
       ```
 
 format格式控制符：与`%`的形式相似，但代之 以`:` 
@@ -511,9 +477,9 @@ python3中默认编码为unicode，ord支持汉字，chr支持超过255的数。
 
 
 
-**计算机对字符串的存储：**按照对应的编码格式，**将字符串存为字节流**，即0101比特流。用文本编辑器打开文件时，文件会自动转码（解码），将二进制字节转为字符串显示。
+**计算机对字符串的存储：**按照对应的编码格式，**将字符串存为字节流**
 
-* 乱码：（1）找不到映射关系。例如，同样地对4个字节解码，GBK以2个字节为单位去映射码表，ASCII以1个字节为单位去映射，映射结果自然不同，甚至出错。（2）在使用二进制模式读取文件时，移动文件指针到不合适的位置并尝试解码，假设有一文本末尾为`芒\n`，占据3+1=4个字节，若`f.seek(-2,1);f.read()`，则汉字的最后1个字节和\n结合，此时解码自然报错。 
+ 乱码：（1）找不到映射关系。例如，同样地对4个字节解码，GBK以2个字节为单位去映射码表，ASCII以1个字节为单位去映射，映射结果自然不同，甚至出错。（2）在使用二进制模式读取文件时，移动文件指针到不合适的位置并尝试解码，假设有一文本末尾为`芒\n`，占据3+1=4个字节，若`f.seek(-2,1);f.read()`，则汉字的最后1个字节和\n结合，此时解码自然报错。 
 
 
 
@@ -557,26 +523,6 @@ for k,v in a.items()
 * 删除键值对：`del dic[key] ` 或 `dic.pop(key)` 
 
   
-
-
-
-自定义哈希函数实现字符串映射：ELF哈希，字符串作为key 。（[原理解释](https://www.cnblogs.com/eagling/articles/4848249.html)）
-
-
-```python
-MAXSIZE=1000	#哈希表长度自定义为1000
-def elf_hash(str_value):
-    h = g = 0
-    for i in str_value:
-        h = (h << 4) + ord(i)
-        g = h & 0xf0000000
-        if g:
-            h ^= g >> 24
-        h &= ~g
-    return h % MAX_SIZE
-```
-
-
 
 ## 集合
 
@@ -635,24 +581,12 @@ def elf_hash(str_value):
 
 ****
 
-文本IO应用 
-
-删除/修改文本中的某一行：（1）小文件读写：将文本先`readlines`以列表的形式读取到内存，再进行ls.pop(指定行)，用writelines写回文本即可。（2）大文件读写：由于readlines需要全部读取然后放到内存中，小文件则有余，大文件则时间耗费巨大。推荐的做法就是打开**两个文件**，一个是原来的文本(r)，一个是新创建的文件(w)，逐行迭代（readline），自己计数，判断是否是指定行，是进行相应的操作，否则逐行写入新文件。
-
-```python
-with open(path,'r') as f1,open(path,'r+') as f2:	#原地修改
-    pass
-with open(path,'r') as f1,open(path1,'w') as f2:	#一个读，一个写
-```
-
-
-
 ## 打开模式
 
 **默认以文本模式打开，以系统编码格式解码**（`sys.getdefaultencoding()`查看系统默认编码）。若其后追加`b`，表示以二进制模式打开文件，例如图片文件；
 
-* `a `，append，追加写入，**文件指针会指向文件末尾**，如果要读取，要重新定位指针`f.seek(0)`，否则读取为空，但是写入时，依旧指向文件末尾。
-* `w` ，覆盖写入，**文件指针指向开头**。在使用open创建文件对象的时候会用空文件**自动覆盖旧文件**，打开之后写入不会覆盖原先内容。
+* `a `，append，追加写入，**文件指针会指向文件末尾**
+* `w` ，覆盖写入，**文件指针指向开头**
 * `r `，只读打开，**文件指针指向开头**。`r+`，可读可写，**覆盖写入（不会往后推）**
 
 在每个模式后附带的`+`，会使当前兼具读写模式。
@@ -664,33 +598,6 @@ with open(path,'r') as f1,open(path1,'w') as f2:	#一个读，一个写
 > | r+   | love python            | ha!e python    |
 > | w+   | 空                     | ha!            |
 > | a+   | 空（因为指针在文件尾） | love pythonha! |
-
-
-
-CRLF(carriage return line feed，意为回车换行)，在文本模式下，**字符串的`\n`在存入硬盘时，转为`\r\n`，会多出1字节**，这是因为windows早期系统只有遇到`\r\n`时才会显示回车。Linux的LF（line feed）换行与二进制`b`存储时`\n`即是`\n`，不会多出1字节。
-
-```python
-"""比较\r\n在rb模式和r模式下的写入读取
-假设有文本内容为'ha!\nhei!'以r+模式写入 
-
-当读取模式为r+时，读取内容为，大小为8字节
-ha!
-hei!
-
-当读取模式为rb+时，读取内容为，大小为9字节
-b'ha!\r\nhei!'
-
-====================================
-假设有文本内容为b'ha!\nhei!'以rb+模式写入 
-
-当读取模式为r+时，读取内容为，大小为8字节
-ha!
-hei!
-
-当读取模式为r+时，读取内容为，大小为8字节
-b'ha!\nhei!'
-"""
-```
 
 
 
@@ -755,26 +662,6 @@ a1=json.load(f)   # 解析文本对象
 * `os.walk(绝对路径,topdown=True)`：深度优先遍历路径下的文件、文件夹，是一个生成器（generator），每次返回1个三元组`(root,dirs,files)`分别表示当前路径（字符串）、路径下文件夹（列表）、路径下文件（列表）。默认参数为`topdown=True`表示自上而下递归遍历。
 
 ```python
-#深度优先，遍历指定目录下所有文件
-from os import listdir
-import os.path as p
-
-
-def find_all_file(path):
-    if not p.isdir(path):	#递归边界
-        print(path)
-        return
-
-    for x in listdir(path):
-        x=p.join(path,x)	#形成绝对路径
-        find_all_file(x)	
-
-path=p.abspath(input('输入路径'))
-find_all_file(path)
-
-```
-
-```python
 # 深度优先，使用os.walk自下而上删除非空文件夹（从叶节点开始往上走）
 import os
 for root, dirs, files in os.walk(top, topdown=False):
@@ -805,20 +692,11 @@ def  func(参数):
     此处写函数文档
    """
     pass
-
 ```
 
 ## 注解
 
 直观地表示函数地参数类型和返回类型，方便人类阅读和IDE检查，但python本身不会做额外的工作。
-
-```python
-# 即使定义了xy为int，但运行 add(3.14,0.62) 也不会报错
-def add(x: int =0, y: int ) -> int:
-    return x+y
-```
-
-
 
 ## 参数
 
@@ -828,7 +706,7 @@ def add(x: int =0, y: int ) -> int:
 * 收集参数：`*args,**kwargs`。星号`*`的使用场景是多样的：
   1. 在函数声明时候使用分别表示非关键`*args`、关键字收集参数`**kwargs`
   2. 函数**调用时使用表示**解包（序列）**，也就是打散列表或者字典**，`myfunc(*[1,2],**{'name':'holluis'})` 
-  3. 赋值时使用表示收集等号右边的多个参数，如`a,*b=1,2,3·`得到` b=[2,3]` 
+  3. 赋值时使用表示收集等号右边的多个参数，如`a,*b=1,2,3`得到` b=[2,3]` 
 
 ```python
 #函数声明 
@@ -844,19 +722,15 @@ my(1,2,3,c=4,d=6,b=10)
 
 
 
-函数调用传参顺序：普通参数（xx）非关键字收集参数（xx）关键字收集参数（xx）。（xx）表示此时默认参数允许在该位置，因为调用时会按名字赋值。
-
-
-
 **参数在函数内部的修改**：python中不区分传址、传值，实际过程中**统统以传址形式**，但是**基于变量的“标签”机制**，参数修改稍有区别！对于原地可变对象，**例如列表/字典/集合等**，python将**直接修改**，函数内部修改等效于外部直接修改。对于原地不可变对象，**例如字符串/数字/元组**，python**另外创建对象**，函数内部修改对外部无效。
 
 
 
-返回值：当不写return的时候，函数默认返回None函数可以返回多个值，这几个值在返回的时候会被打包成元组。如return x,y,z 。因为","是元组的标志，同时元组的括号可以省略。接收的时候按顺序写好元素即可为其一赋值。x,y,z=func()
+返回值：当不写return的时候，函数默认返回None。函数可以返回多个值，这几个值在返回的时候会被打包成元组。x,y,z=func()
 
 ## 匿名函数与内置函数
 
-**lambda匿名函数表达式**：精简的函数表示形式，很多时候配合一些高级内置函数使用
+**lambda匿名函数表达式**：精简的函数表示形式
 
 ```python
 #return the address of func
@@ -881,7 +755,7 @@ func=lambada x:x**x
 
   
 
-* `map(func,iterable)`：将迭代对象中的元素依次传入func，返回map对象（可迭代）。可以使用解包方法直接得到元素，例如，输入处理中常用的`n,m=map(int,input().split())`，将输入字符串以空格分隔处理并逐个转换为Int型 。
+* `map(func,iterator)`：将迭代对象中的元素依次传入func，返回map对象（可迭代）。可以使用解包方法直接得到元素，例如，输入处理中常用的`n,m=map(int,input().split())`，将输入字符串以空格分隔处理并逐个转换为Int型 。
 
   
 
@@ -1031,9 +905,9 @@ if __name__='__main__':
 
 迭代器：访问数据流的一种方式，使其支持迭代。迭代器的实现依赖于对象的魔法方法`__iter__()`、`__next__()`。
 
-迭代器区别于固化的数据流（如列表），**迭代器本身只存储对应的迭代算法，也只关注下一次迭代的值，节约内存，处理较大数据时，迭代器具备优势**。在迭代的过程中，其只能向后，不能回退。
+迭代器区别于固化的数据流（如列表），**迭代器本身只存储对应的迭代算法，也只关注下一次迭代的值**。
 
-在实现迭代器时，**`__iter__()`函数应当返回对象实例本身，`__next__()`函数返回下一次迭代的值，并设计好迭代边界和异常抛出`raise StopIteration`**。当对象用于for循环时，会隐式地触发对象的iter、next函数。
+在实现迭代器时，**`__iter__()`函数应当返回对象实例本身，`__next__()`函数返回下一次迭代的值，并设计好迭代边界和异常抛出`raise StopIteration`**。当对象用于for 循环时，会隐式地触发对象的iter、next函数。
 
 python内置函数`iter(obj)`会隐式调用对象的`__iter__`方法，`next(obj)`会隐式调用对象的`__next__()`方法。
 
@@ -1072,26 +946,6 @@ class MyList:
 if __name__ == '__main__':
     myList=MyList()
     for i in myList:print(i,end=' ')	#打印 0 1 2 3 4 5 6 7 8 9 
-```
-
-**一个对象只要实现了`__iter__()`方法，就被python认为是可迭代`Iterable`的，若同时实现`__iter__()`、`__next__()`方法就可以作为迭代器`Iterator`。**
-
-```python
-#可迭代 迭代器判断
-from collections import Iterable,Iterator
-tests=[[1,2],(1,2),{'a':1},{1,2}]
-
-for test in tests:
-    print('变量：{} 类型：{} 是否可迭代Iterable: {} 是否为迭代器：{}'.
-          format(test,type(test),isinstance(test,Iterable),isinstance(test,Iterator)))
-
-'''运行结果
-变量：[1, 2] 类型：<class 'list'> 是否可迭代Iterable: True 是否为迭代器：False
-变量：(1, 2) 类型：<class 'tuple'> 是否可迭代Iterable: True 是否为迭代器：False
-变量：{'a': 1} 类型：<class 'dict'> 是否可迭代Iterable: True 是否为迭代器：False
-变量：{1, 2} 类型：<class 'set'> 是否可迭代Iterable: True 是否为迭代器：False
-
-'''
 ```
 
 
@@ -1205,20 +1059,6 @@ print('a.count:{} a1.count:{}'.format(a.count,a1.count))	#a.count:10 a1.count:25
 
   * `if obj`：若实例被分配了内存，if判断为True
   * `a==b`：若未实现魔法方法`__eq__`、`__neq__`方法。两个对象直接使用`==`判断，实际效果为`id(a)==id(b)` 
-
-* 对象的引用：若有`a=b=className` ，此处变量a、b指向同一个内存对象。`del a`会删除变量名（标签a），但b的引用依旧还在。另外，**当使用原地可变变量（如列表）初始化实例时**，实例属性作为另外一个标签同样指向该变量的同一内存，**实例方法的修改对外变量也起作用**。但一般情况下，实例属性不会暴露在顶层修改。
-
-  ```python
-  class Test:
-      def __init__(self,l):
-          l.append(2)
-  
-  a=[1]	#不应该暴露在顶层 
-  t=Test(a)
-  print(a)	#[1,2]
-  ```
-
-
 
 ## 类的相关函数
 

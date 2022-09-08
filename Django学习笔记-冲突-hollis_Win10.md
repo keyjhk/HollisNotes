@@ -3744,7 +3744,10 @@ urlpatterns = [
 
 ## 序列化
 
-**`drf`中的序列化主要是用来将模型序列化成`JSON`格式的对象。但是除了序列化，他还具有表单验证功能，数据存储和更新功能**。以下将进行讲解。
+**`drf`中的序列化是双向的，主要用于：**
+
+1. 将模型序列化成`JSON`格式的对象，返回给前端
+2. 表单验证功能，数据反序列化成实例，进行数据的更新。
 
 ### Serializer
 
@@ -3752,7 +3755,9 @@ urlpatterns = [
 
 #### 创建Serializer
 
-这里我们以上一节的模型`Merchant`、`GoodsCategory`、`Goods`为例来讲解。首先我们创建一个`Merchant`的`Serializer`类，**该类必须实现`create`、`update`方法**，示例代码如下：
+这里我们以上一节的模型`Merchant`、`GoodsCategory`、`Goods`为例来讲解。
+
+首先我们创建一个`Merchant`的`Serializer`类，**该类必须实现`create`、`update`方法**，示例代码如下：
 
 ```python
 from rest_framework import serializers
@@ -3945,7 +3950,9 @@ class MerchantSerializer(serializers.ModelSerializer):
 
 #### `Serializer`嵌套
 
-有时候在一个模型的序列化中，存在外键关联，我们可能需要得到这个外键的详细信息。这时候就可以使用到序列化的嵌套，如果不使用嵌套，默认的序列化方法如下。
+序列化其中一个模型的时候，涉及到另外一个模型的序列化，即为嵌套。
+
+模型的某个属性为另外一个模型，现实意义就是存在表关联。
 
 * 1对1：定义外键的那个模型，序列化时返回关联模型的id、创建时前端提交id。
 
@@ -4068,11 +4075,10 @@ restful的url设计过程中，一个url的想要的操作通过他的`method`�
 
 #### Request对象：
 
-`DRF`的`Request`对象是从`HttpRequest`中拓展出来的，但是增加了一些其他的属性。其中最核心的用得最多的属性便是`request.data`。`request.data`比`request.POST`更加灵活：
+`DRF`的`Request`对象是从`HttpRequest`中拓展出来的，但是增加了一些其他的属性。其中最核心的用得最多的属性便是`request.data`：
 
-1. `request.POST`：只能处理表单数据，获取通过`POST`方式上传上来的数据。
-2. `request.data`：**可以处理任意的数据。可以获取通过`POST`、`PUT`、`PATCH`等方式上传上来的数据。** 
-3. `request.query_params`：**查询参数**。比`request.GET`更用起来更直白。 
+1. `request.data`：**可以处理任意的数据。可以获取通过`POST`、`PUT`、`PATCH`等方式上传上来的数据。** 
+2. `request.query_params`：**查询参数**。比`request.GET`更用起来更直白。 
 
 
 
@@ -4091,7 +4097,7 @@ request在类视图有两处存在：
 
 #### 状态码
 
-在`Restful API`中，响应的状态码是很重要的一部分。比如请求成功是`200`，参数错误是`400`等。但是具体某个状态码是干什么的，`django`是没有做过多的解释（这也不是django所需要解决的问题，因为他只是个web框架），对于一些初学者而言用起来会有点迷糊。这时候我们可以使用`DRF`提供的状态码。比如：
+在`Restful API`中，响应的状态码是很重要的一部分，`DRF`编码了若干状态码，使用起来直观
 
 ```python
 from rest_framework.response import Response
@@ -4106,40 +4112,19 @@ def merchant(request):
 
 ### APIView
 
-如果是视图函数，那么可以使用装饰器`@api_view`进行装饰，这个装饰器中可以传递本视图函数可以使用什么`method`进行请求。示例代码如下：
+如果是视图函数，可以使用装饰器`@api_view`限制请求Method
 
 ```python
 from rest_framework.decorators import api_view
 
 @api_view(['GET', 'PUT', 'DELETE'])
 def snippet_detail(request, pk):
-    """
-    Retrieve, update or delete a code snippet.
-    """
-    try:
-        snippet = Snippet.objects.get(pk=pk)
-    except Snippet.DoesNotExist:
-        return Response(status=status.HTTP_404_NOT_FOUND)
-
-    if request.method == 'GET':
-        serializer = SnippetSerializer(snippet)
-        return Response(serializer.data)
-
-    elif request.method == 'PUT':
-        serializer = SnippetSerializer(snippet, data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-    elif request.method == 'DELETE':
-        snippet.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+    pass
 ```
 
 
 
-如果是类视图，那么可以让你的类继承自`APIView`。示例代码如下：
+如果是类视图，可以让类继承自`APIView`，手动实现get\post等请求来完成对应method
 
 ```python
 from rest_framework.views import APIView
@@ -4148,12 +4133,6 @@ class MerchantView(APIView):
     def get(self,request): # get method
         return Response("你好")
 ```
-
-**`APIView` 类手动实现get\post等请求，在函数中自己完成数据库的相关逻辑，像一些图片上传和数据库增删改查关系不大的可以使用该类视图。**
-
-
-
-
 
 ### Mixins
 
@@ -4210,7 +4189,7 @@ class MerchantView(
 
 ### Generic：
 
-以上我们通过`mixin`可以非常方便的实现一些`CURD`操作。实际上针对这些`mixin`，`DRF`还进一步的进行了封装，放到`generics`下。有以下`generic`类视图：
+`mixin`类实现了模型CURD的核心操作，但是操作外还需要套一个method方法调用。generic包有更彻底的封装类：
 
 1. `generics.ListAPIView`：**实现获取列表数据的**。实现`get`方法。
 2. `generics.CreateAPIView`：实现创建数据的。实现`post`方法。
@@ -4229,7 +4208,7 @@ class MerchantView(
     generics.CreateAPIView, # 这时候就不用继承自generics.GenericAPIView了 因为它们都是它的子类 
     generics.UpdateAPIView, # 可以点进去看它底层的方法实现 以便自定义修改 
     generics.DestroyAPIView,
-    generics.RetrieveAPIView
+    generics.RetrieveAPIView  # 单个查询
 ):
     '''
     generic 的 方法 相当于帮我们实现了get\post\delete等方法
@@ -4257,7 +4236,9 @@ urlpatterns = [
 | put    | /merchant/31/ | 修改id=31的merchant数据 |
 | delete | /merchant/31  | 删除id=31的merchant数据 |
 
-**因为这里`retrieve`占用了`get`方法**，所以如果想要实现获取列表的功能，那么需要再重新定义一个`url`和视图：
+
+
+**因为这里`retrieve`占用了`get`方法**，所以如果想要实现获取列表的功能，那么需要再重新定义一个url `merchants/`和视图：
 
 ```python
 # views.py
@@ -4278,8 +4259,6 @@ urlpatterns = [
 
 
 
-
-
 Generic  、 Mixin、APIView 实现方法对比
 
 | APIView                                                    | Mixin                                                        | GenericApi （底层调用左边的）                           |
@@ -4291,13 +4270,11 @@ Generic  、 Mixin、APIView 实现方法对比
 |                                                            | `delete`: destroy，`DestroyModelMixin`                       | delete，`DestroyAPIView`                                |
 |                                                            | `put()`:update，`UpdateModelMixin`                           | put，`UpdateAPIView`                                    |
 
-或许会好奇为什么有些类视图能够代替实现get/post等诸多方法？仔细想想的话，**那些method对数据集的通用操作是有规律的，他们需要的也仅仅是pk主键和一个模型。**
+
 
 ------
 
 ### GenericAPIView 的API 
-
-深入了解`GenericAPIView`的API，分页、过滤的时候会用到。
 
 Mixins 类视图、Generic类视图均继承自 `GenericAPIView `  ，涉及到模型类、序列化类。
 
@@ -4305,7 +4282,7 @@ Mixins 类视图、Generic类视图均继承自 `GenericAPIView `  ，涉及到�
 
 queryset：
 
-`queryset`是用来控制视图返回给前端的数据。如果没什么逻辑，可以直接写在视图的类属性中。
+`queryset`是用来控制视图绑定的数据集
 
 ```python
 class AddressViewSet(ModelViewSet):
@@ -4328,57 +4305,11 @@ serializer_class:
 
 `serializer_class`用来验证和序列化数据的。可以通过直接设置这个属性，也可以通过重写`get_serializer_class`来实现。
 
-****
-
-lookup_field和lookup_url_kwarg：
-
-1. `lookup_field`：**数据库检索字段名，默认是主键`pk`**
-2. `lookup_url_kwarg`：在检索的`url`中的参数名称，比方说`merchant/<str:name>`，这个参数名字就是name。默认没有设置，跟`lookup_field`保持一致。 
-
-```python
-# get_object 的源码
-# Perform the lookup filtering.
-lookup_url_kwarg = self.lookup_url_kwarg or self.lookup_field # 按照哪个名字去url里拿关键字参数
-
-# 看看我们的url参数里有没有
-assert lookup_url_kwarg in self.kwargs, (
-    'Expected view %s to be called with a URL keyword argument '
-    'named "%s". Fix your URL conf, or set the `.lookup_field` '
-    'attribute on the view correctly.' %
-    (self.__class__.__name__, lookup_url_kwarg)
-)
-# {数据库查询字段:url参数列表[url名字]}
-filter_kwargs = {self.lookup_field: self.kwargs[lookup_url_kwarg]}
-obj = get_object_or_404(queryset, **filter_kwargs)
-```
-
-#### 重写方法
-
-get_queryset(self)：（1）用于动态的返回一个`queryset`对象**副本** （2） 封装模型的选择 
-
-
-
-get_object(self)：用于在数据检索的时候，返回一条数据的。
-
-
-
-perform_create(self,serializer)：保存对象的时候调用。
-
-
-
-perform_update(self,serializer)：更新对象的时候调用。
-
-
-
-perform_destroy(self,serializer)：删除对象的时候调用。
-
 ### 分页
 
-分页是通过设置`pagination_class`来实现的。默认这个属性的值是`rest_framework.pagination.PageNumberPagination`，也就是通过控制页码，每页的数量来实现的。我们可以通过在`settings.REST_FRAMEWORK`中设置`PAGE_SIZE`来控制每页的数量，然后在`url`中通过传递`page`参数来获取指定页数的数据。
+分页是通过设置`pagination_class`来实现的
 
-
-
-1. 自定义类，设置分页参数 
+1. 自定义一个 分页类，继承PageNumberPagination 
 
    ```python
    from rest_framework.pagination import PageNumberPagination
@@ -4387,7 +4318,7 @@ perform_destroy(self,serializer)：删除对象的时候调用。
        page_query_param = 'page'  # url 请求分页的参数 ?page=xx
    ```
 
-2. 在类视图或者视图集中重写类属性 `pagination_class`  
+2. 在类视图重写类属性 `pagination_class`  
 
    ```python
    class MerchantViewSet(ModelViewSet):
@@ -4423,11 +4354,9 @@ perform_destroy(self,serializer)：删除对象的时候调用。
 
 ## ViewSet视图集
 
-`ViewSet`视图集，相当于是之前我们学习视图的一个集合，**同时对url路由定义部分进行了优化。**
+`ViewSet`视图集，包含数据增删改查的所有方法，不再需要拔插式的继承。
 
 **在视图集中，不定义`get`和`post`等方法，取而代之的是`list`和`create`。以下分别进行讲解。**
-
-
 
 ### ViewSet
 
@@ -4508,28 +4437,7 @@ class MerchantViewSet(viewsets.ModelViewSet):
     serializer_class = MerchantSerializer
 ```
 
-**有时候在一个视图中，我们可能还需要增加其他的`url`来补充CURD之外的操作**，这时候就可以使用`@action`来实现：
 
-```python
-from rest_framework.decorators import action  # 装饰器 
-
-class MerchantViewSet(viewsets.ModelViewSet):
-    queryset = Merchant.objects.all()
-    serializer_class = MerchantSerializer
-	
-    # 假设视图对应的是 /merchant/
-    # 那么下面的函数对应的是 /merchant/cs
-    # 可以提供参数 url_path='real_url' 表示实际的url，否则就以函数名访问
-    # detail 表示不以id形式：cs/id访问 
-    @action(['GET'],detail=False) 
-    def cs(self,request,*args,**kwargs):
-        queryset = self.get_queryset()
-        queryset = queryset.filter(name__contains="长沙")
-        serializer = MerchantSerializer(queryset,many=True)
-        return Response(serializer.data)
-```
-
-`urls.py`路由部分不需要修改。以后直接可以通过`/merchant/cs/`可以访问到`name`中包含了`"长沙"`两个字的所有商家。
 
 ## 搜索过滤
 
@@ -4736,7 +4644,10 @@ class MerchantModelView(ModelViewSet):
 
 #### 配置认证
 
-配置认证有两种方式，一种是全局的，在`settings.REST_FRAMEWORK.DEFAULT_AUTHENTICATION_CLASSES`中配置。第二种就是在需要认证的视图中，通过`authentication_classes`进行配置。示例代码如下：
+配置认证有两种方式
+
+1. 全局的，在`settings.REST_FRAMEWORK.DEFAULT_AUTHENTICATION_CLASSES`中配置。
+2. 单个视图，通过`authentication_classes`进行配置。示例代码如下：
 
 ```python
 REST_FRAMEWORK = {
@@ -4744,7 +4655,7 @@ REST_FRAMEWORK = {
 }
 ```
 
-### 权限：
+### 权限
 
 **权限在具体层面的增删改查，映射到视图操作，就是post\delete\put\get等操作，因此控制权限，就是限制不同用户对这些method的有无。**
 
@@ -4761,8 +4672,6 @@ REST_FRAMEWORK = {
 
 1. 继承自`permissions.BasePermission`。
 2. 实现`has_permission(self,request,view)`或者是`has_object_permission(self, request, view, obj)`方法。第一个方法用管理整个视图的访问权限，第二个方法可以用来管理某个对象的访问权限（比如只能修改自己的用户信息）。
-
-示例代码如下：
 
 ```python
 from rest_framework import permissions
@@ -4846,6 +4755,7 @@ class ExampleView(APIView):
 针对那些没有登录的用户进行节流。默认会根据`REMOTE_ADDR`，也就是用户的`IP`地址作为限制的标记。如果用户使用了透明代理（匿名代理没法追踪），那么在`X-Forwarded-For`中会保留所有的代理的`IP`。比如下图：
 
 ![img](https://hollis-md.oss-cn-beijing.aliyuncs.com/img/MultipleProxySetup.png)
+
 这时候就要看在`settings.REST_FRAMEWORK.NUM_PROXIES`了，如果这个值设置的是0，那么那么将获取`REMOTE_ADDR`也就是真实的`IP`地址，如果设置的是大于`0`的数，那么将获取代理的最后一个`IP`。
 
 #### UserRateThrottle：

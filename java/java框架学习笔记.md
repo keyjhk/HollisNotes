@@ -2,6 +2,10 @@
 typora-copy-images-to: upload
 ---
 
+[toc]
+
+
+
 # Maven
 
 maven用于解决jar包的依赖，项目的编译部署。 
@@ -463,7 +467,31 @@ pom文件中导入依赖
     <artifactId>mybatis</artifactId>
     <version>3.5.7</version>
 </dependency>
+<dependency>
+    <groupId>mysql</groupId>
+    <artifactId>mysql-connector-java</artifactId>
+    <version>5.1.36</version>
+</dependency>
+<!--日志文件 方便观察生成的sql语句-->
+<dependency>
+    <groupId>org.slf4j</groupId>
+    <artifactId>slf4j-log4j12</artifactId>
+    <version>1.7.30</version>
+</dependency>
 ```
+
+classpath下创建log4j.properties配置文件
+
+```properties
+log4j.rootLogger=ERROR, stdout
+# 输出类
+log4j.logger.dao=DEBUG 
+log4j.appender.stdout=org.apache.log4j.ConsoleAppender
+log4j.appender.stdout.layout=org.apache.log4j.PatternLayout
+log4j.appender.stdout.layout.ConversionPattern=%5p [%t] - %m%n
+```
+
+
 
 ### 创建模型类
 
@@ -555,19 +583,17 @@ mybatis的配置文件可以分为两类：
     <!-- environments表示配置Mybatis的开发环境，可以配置多个环境
 	使用default属性指定实际运行时使用的环境。 -->
     <environments default="development">
-        <!-- environment表示配置Mybatis的一个具体的环境 -->
+              <!-- environment表示配置Mybatis的一个具体的环境 -->
         <environment id="development">
 
             <!-- Mybatis的内置的事务管理器 -->
             <transactionManager type="JDBC"/>
-
-            <!-- 配置数据源 来自上文指定的外部数据源信息 jdbc.properties文件-->
+<!--            数据库连接信息-->
             <dataSource type="POOLED">
-                <!-- 建立数据库连接的具体信息 -->
-                <property name="driver" value="${wechat.dev.driver}"/>
-                <property name="url" value="${wechat.dev.url}"/>
-                <property name="username" value="${wechat.dev.username}"/>
-                <property name="password" value="${wechat.dev.password}"/>
+                <property name="driver" value="com.mysql.jdbc.Driver"/>
+                <property name="url" value="jdbc:mysql://localhost:3306/xdClass"/>
+                <property name="username" value="root"/>
+                <property name="password" value="root"/>
             </dataSource>
         </environment>
     </environments>
@@ -620,7 +646,7 @@ select/insert/update/delete 等标签与sql的操作增删改查操作一一对�
 
 sql语句，用`#{}`来表示待定参数，更详细的配置参考Mapper一节。
 
-## Mapper
+## Mapper文件
 
 sql语句的具体执行已经在配置文件中说明 ，实体类也已经创建完毕。Mapper类扮演的角色类似于JDBC中的DAO层，负责联系两者，用一个可读性更强的函数来封装具体的sql语句。框架让这这部分工作完成地更加简单优雅。
 
@@ -685,6 +711,8 @@ public interface EmployeeMapper {
 
 ### 使用
 
+<img src="https://hollis-md.oss-cn-beijing.aliyuncs.com/img/image-20220731111741090.png" alt="image-20220731111741090" style="zoom: 80%;" />
+
 虽然我们只是创建了一个接口类，但是框架会为我们动态生成一个实体类。方法体自然就是执行具体的sql语句。
 
 使用Mapper：通过`@Before` 、`@After`、`@Test` 来区分三个阶段：
@@ -741,37 +769,19 @@ public class ImprovedMybatisTest {
 
 ### 参数格式
 
-接口类的方法声明提到一点，函数的参数要符合sql待定参数的要求。其中学问不浅，直观地，可以通过待定参数的多少来分类：
+sql语句中，使用`#{变量名}`来表示待定参数，推荐使用，`${}` 表示字符串拼接，会有字符串注入问题
 
-* 单个参数
-* 多个参数：实体类/mapper
-
+参考：https://blog.csdn.net/qq_43052725/article/details/105577159 
 
 
-sql语句中，使用`#{变量名}`来表示待定参数。
 
-#### 单个参数
-
-sql语句 
-
-```xml
-<select id="selectEmployee" resultType="com.atguigu.mybatis.entity.Employee">
-    select emp_id empId,emp_name empName,emp_salary empSalary from t_emp where emp_id=#{empId}
-</select>
-```
-
-方法声明时，参数名可以是任意的。框架不会做特殊处理
+1. 声明形参时，使用`@Param(param)`注解 ，将参数封装成Map，键是别名，值为实参。
 
 ```java
-Employee selectEmployee(Integer empId);
-Employee selectEmployee(Integer empIdTest); // 同样可以
+void insertEmployee(@Param("empName") String empName, @Param("empSalary") Double empSalary);
 ```
 
-#### 多个参数
-
-https://blog.csdn.net/qq_43052725/article/details/105577159 
-
-sql语句
+2. sql语句取参数时，**按照别名取值**
 
 ```xml
 <insert  id="insertEmployee">
@@ -779,70 +789,66 @@ sql语句
 </insert>
 ```
 
-声明形参时，使用`@Param(param)`注解 ，与参数名一一对应
+****
+
+封装多个参数：
+
+**使用实体类：**逻辑上这些参数应该归属于一个实体类。对于sql的待定参数，框架会调用类的getXXX方法去获取。 例子中的`#{empName}` 等于`emp.getEmpName()`。 
+
+函数声明 
 
 ```java
-void insertEmployee(@Param("empName") String empName, @Param("empSalary") Double empSalary);
-
+ // 参数是职员类
+ void insertEmployee(Employee emp);
 ```
 
+职员类
 
+```java
+ public class Employee {
+     // 数据库的字段 emp_id emp_name ...
+     private Integer empId;
+     private String empName;
+     private double empSalary;
 
-当函数参数过多时，使用注解的形式不如封装。
-
-1. 使用实体类：逻辑上要求这些参数归属于一个实体类。对于sql的待定参数，框架会调用类的getXXX方法去获取。 例子中的`#{empName}` 等于`emp.getEmpName()`。 
-
-   函数声明 
-
-    ```java
-    // 参数是职员类
-    void insertEmployee(Employee emp);
-    ```
-
-	职员类
-
-    ```java
-    public class Employee {
-        // 数据库的字段 emp_id emp_name ...
-        private Integer empId;
-        private String empName;
-        private double empSalary;
-   
-        // 省略getEmpSalary() 和 getEmpName 方法
-    }
-    ```
+     // 省略getEmpSalary() 和 getEmpName 方法
+ }
+```
 
 ​				它们的关系 
 
 <img src="https://hollis-md.oss-cn-beijing.aliyuncs.com/img/image-20220701151316782.png" alt="image-20220701151316782" style="zoom: 50%;" />
 
 
-2. 使用Map：逻辑上归属不到一个实体类，就用Map封装。待定参数名就是Map中的key 
 
-   ```java
-   int updateEmployeeByMap(Map<String, Object> paramMap);
-   ```
 
-   调用时 
 
-   ```java
-   EmployeeMapper mapper = session.getMapper(EmployeeMapper.class);
-   
-   Map<String, Object> paramMap = new HashMap<>();
-   
-   paramMap.put("empSalary", 999.99);
-   paramMap.put("empName", 5);
-   
-   int result = mapper.updateEmployeeByMap(paramMap);
-   ```
+**使用Map：**Map中的key 作为参数别名 
 
-   
+```java
+int updateEmployeeByMap(Map<String, Object> paramMap);
+```
+
+调用时 ：
+
+```java
+EmployeeMapper mapper = session.getMapper(EmployeeMapper.class);
+
+Map<String, Object> paramMap = new HashMap<>();
+
+paramMap.put("empSalary", 999.99);
+paramMap.put("empName", 5);
+
+int result = mapper.updateEmployeeByMap(paramMap);
+```
+
+
 
 ### 返回结果
 
 通过指定`resultType`指定返回类型
 
-#### **简单数据类型** 
+#### 简单数据类型 
 
 示例：int
 
@@ -858,7 +864,7 @@ int selectEmpCount();
 
 
 
-#### **实体类**
+#### 实体类
 
 查询的字段名和类属性应该一致，否则该类属性为空。 
 
@@ -883,7 +889,7 @@ emp.empName = xxx;
 
 
 
-#### **Map类型** 
+#### Map类型 
 
 返回的多个数据，并不能被一个实体类封装，就用Map
 
@@ -905,7 +911,7 @@ Map<String,Object> selectEmpNameAndMaxSalary();
 
 
 
-#### **List类型** 
+#### List类型 
 
 不需要特殊处理，resultType属性中还是设置实体类类型即可。
 
@@ -926,10 +932,10 @@ List<Employee> selectAll();
 
 某些场景下，插入数据后，需要拿到新增的主键。 **框架中，自增的主键获取依靠实体类，而不是返回值**。
 
-**sql语句需要声明`useGeneratedKeys="true"`表示需要获取返回主键，`keyProperty="empId">`表示主键对应的实体类属性。**
+**sql语句声明`useGeneratedKeys="true"`表示需要获取返回主键，`keyProperty`表示主键对应的实体类属性， keyColumn为表的主键名，**则插入成功以后，实体类的该属性会被赋值为自增主键。
 
 ```xml
-<insert id="insertEmployee" useGeneratedKeys="true" keyProperty="empId">
+<insert id="insertEmployee" useGeneratedKeys="true" keyProperty="empId" keyColumn="id">
     insert into t_emp(emp_name,emp_salary)
     values(#{empName},#{empSalary})
 </insert>
@@ -942,29 +948,16 @@ int insertEmployee(Employee employee);
 调用时
 
 ```java
-@Test
-public void testSaveEmp() {
-    SqlSession session = sessionFactory.openSession();
-    
-    EmployeeMapper employeeMapper = session.getMapper(EmployeeMapper.class);
-    
-    Employee employee = new Employee();
-        
-    employee.setEmpName("john");
-    employee.setEmpSalary(666.66);
-    
-    employeeMapper.insertEmployee(employee);
-    // 主键存储在实体类中 通过这种形式获取
-    System.out.println("employee.getEmpId() = " + employee.getEmpId());
-    
-    session.commit();
-    session.close();
-}
+employeeMapper.insertEmployee(employee);
+// 主键存储在实体类属性
+System.out.println("employee.getEmpId() = " + employee.getEmpId());
 ```
 
 
 
-## 数据库字段和实体类属性
+## 字段和类属性映射
+
+### resultType
 
 书写sql语句时，为了让返回的结果能够被正常地封装为一个实体类，我们对字段名取了别名。 
 
@@ -975,19 +968,24 @@ public void testSaveEmp() {
 </select>
 ```
 
-除了别名，也有其他办法完成它们两者的映射
 
-1. 让框架帮我们处理：建立在表字段都是`单词_单词`这种下划线分隔的情况 。在全局的配置文件中，开启配置
 
-   ```xml
-   <!-- 使用settings对Mybatis全局进行设置 -->
-   <settings>
-       <!-- 将xxx_xxx这样的列名自动映射到xxXxx这样驼峰式命名的属性名 -->
-       <setting name="mapUnderscoreToCamelCase" value="true"/>
-   </settings>
-   ```
+**推荐的做法是**，在mybatis的全局配置文件中，开启如下配置，自动将下划线分隔的单词转成驼峰命名风格，**免去别名设置**
 
-2. 在mapper文件中，使用resultMap标签定义对应关系，再在后面的SQL语句中引用`resultMap`属性
+```xml
+<!-- 使用settings对Mybatis全局进行设置 -->
+<settings>
+    <!-- 将xxx_xxx这样的列名自动映射到xxXxx这样驼峰式命名的属性名 -->
+    <setting name="mapUnderscoreToCamelCase" value="true"/>
+</settings>
+```
+
+### resultMap
+
+resultMap可以更详细地设置两者之间的映射关系，更复杂，自由度也更高。
+
+1. 使用resultMap标签定义映射关系
+2. 在后面的SQL语句中引用`resultMap`属性
 
 ```xml
 <!-- 专门声明一个resultMap设定column到property之间的对应关系 -->
@@ -1031,12 +1029,13 @@ public void testSaveEmp() {
 public class Order {
     private Integer orderId;
     private String orderName;
-    private Customer customer;// 体现的是对一的关系
+    // 体现的是对一的关系，虽然表中存储的字段是id，但是在构造pojo对象时，设置为 关联类 
+    private Customer customer;
 
     public Order(Integer orderId, String orderName, Customer customer) {
         this.orderId = orderId;
         this.orderName = orderName;
-        this.customer = customer;
+        this.customer = customer; 
     }
 	
     // 无参构造
@@ -1051,7 +1050,10 @@ public class Order {
 <resultMap id="selectOrderByIDResultMap" type="com.hollis.mybatis.entity.Order">
     <id column="order_id" property="orderId"></id>
     <result column="order_name" property="orderName"></result>
-    <!--关联外部类 property 用于指定类属性 javeType用于指定封装实体类-->
+    
+    <!--
+		其余字段封装成 Customer 类 
+		property 指定类属性 javeType指定封装实体类-->
     <association property="customer" javaType="com.hollis.mybatis.entity.Customer">
         <!--关联类的具体映射-->
         <result column="customer_name" property="customerName"></result>
@@ -1059,8 +1061,11 @@ public class Order {
     </association>
 </resultMap>
 
-<!--按照select 返回的字段取结果集一一封装 order_xx 属于 Order类属性-->
-<!-- customer_xx 属于Customer属性-->
+<!--按照select 返回的字段取结果集一一封装 
+order_xx 属于 Order类属性
+customer_xx 属于Customer属性
+这种前缀区分 可以在字段名重合时（比如id） 依旧能取出正确的column
+-->
 <select id="selectOrderByID" resultMap="selectOrderByIDResultMap">
     select order_id,order_name,tc.customer_id,tc.customer_name  from t_order
     left join t_customer tc on t_order.customer_id = tc.customer_id
@@ -1161,17 +1166,16 @@ Customer的mapper配置文件： 在查询Customer时，orderList会一并查询
    </select>
    ```
 
-   修改resultMap 属性的关联属性标签collection，取消ofType属性，这样就不会立刻封装结果。创建select属性，表示该关联属性的查询跳转到此处select语句处理，值是`namesapce.id` 。column表示要传递给该select语句的参数
+   修改resultMap 属性的关联属性标签collection，**取消ofType属性，这样就不会立刻封装结果。创建select属性**，表示该关联属性的查询跳转到此处select语句处理，值是`namesapce.id` 。column表示要传递给该select语句的参数
 
    ```xml
    <collection property="orderList"
                column="customer_id"
         	 select="com.hollis.mybatis.entity.Mapper.OrderMapper.selectOrderByCustomerID">
-       <id column="order_id" property="orderId"></id>
-       <result column="order_name" property="orderName"></result>
+   
    </collection>
    ```
-
+   
 2. 同时修改 order的查询，同样为查询自身，注意id要与跳转的select对应 
 
    ```xml
@@ -1217,11 +1221,7 @@ public void testCustomerSelect() throws InterruptedException {
 
 ## 动态sql
 
-在结构上动态地拼接sql语句，而不是仅仅设置参数。 
-
-例如，根据实体对象属性来设置查询条件，where可能有，也可能没有，结构是变化的，这种场景就需要使用到动态sql。
-
-动态sql可以看做是mybatis的一种语法，也是使用标签来管理。 
+在结构上依据参数的取值来动态地拼接sql语句，作为mybatis的一种语法。
 
 ### if 和 where
 
@@ -1232,6 +1232,7 @@ public void testCustomerSelect() throws InterruptedException {
     <!--where条件是否存在取决于传入的emp对象的属性参数-->
     <!--test属性是语法规定-->
     <where>
+        <!-- if 判断值要注意 属性是基本类型(默认0) 还是 包装类型（默认null）-->
         <if test="empName != null">
             <!-- #{}访问参数 -->
             or emp_name=#{empName}
@@ -1264,7 +1265,7 @@ where emp_name={?};
 
 ### choose/when/otherwise
 
-if会每个条件都进行判断 ，choose当满足一个条件时，就终止其余判断 。
+choose 相当于`if-elif`，当满足一个条件时，就终止其余判断 。
 
 ```xml
 
@@ -1304,7 +1305,7 @@ if会每个条件都进行判断 ，choose当满足一个条件时，就终止�
 
 ### foreach
 
-循环生成多个sql片段，常配合列表对象，完成批量操作，例如批量更新 
+循环生成多个sql片段，常配合列表对象，**完成批量操作**，例如批量更新 
 
 ```xml
 <!--    int batchInsertEmployee(@Param("empList") List<Employee> empList);-->
@@ -1364,7 +1365,7 @@ public void EmployeeBatchUpdate() {
 }
 ```
 
-### 重复sql
+### 重复sql片段
 
 使用重复的sql片段 
 
@@ -1403,7 +1404,7 @@ public void EmployeeBatchUpdate() {
 
 ### 一级缓存
 
-一级缓存的范围限定于同一个SqlSession，无需额外设置 
+**一级缓存的范围限定于同一个SqlSession**，无需额外设置 
 
 sql语句如下 
 
@@ -1491,11 +1492,57 @@ public void testSecondCacheLevel() {
 
 # Spring
 
+## 配置 
+
+创建依赖
+
+```xml
+<dependencies>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
+            <version>5.2.5.RELEASE</version>
+        </dependency>
+        <!--
+       https://mvnrepository.com/artifact/org.springframework/spring-core -->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-core</artifactId>
+            <version>5.2.5.RELEASE</version>
+        </dependency>
+        <!--
+       https://mvnrepository.com/artifact/org.springframework/spring-beans -->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-beans</artifactId>
+            <version>5.2.5.RELEASE</version>
+        </dependency>
+    </dependencies>
+```
+
+resources下创建配置文件applicationContext.xml
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+        https://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean name="video" class="com.hollis.domain.Video"
+          scope="prototype">
+    </bean>
+
+</beans>
+```
+
+
+
 ## IOC容器
 
 容器是spring的核心，这里的容器不仅仅负责存储组件，还负责组件的创建销毁、工作等。 
 
-IOC意为 inversion of control，反转控制。这里的“反转”指的是反转资源获取的方式，在此之前，资源的获取由组件主动获取，这样的方式需要开发者明确知道资源在容器中的获取方式，比价费力。反转之后，资源的获取由容器主动向组件推送，组件只需要确认资源的获取方式即可。 主客之势互易，可以这么理解。 
+IOC意为 inversion of control，反转控制。这里的“反转”指的是反转资源获取的方式，在此之前，**资源的获取由用户主动创建**。反转之后，**资源的获取交由容器（注入）**。 
 
 DI意为dependency injection，依赖注入，是组件预定义资源依赖方式来接收资源，是IOC思想的具体实现。
 
@@ -1522,6 +1569,8 @@ ApplicationContext的具体实现类：
 ### 创建
 
 ### 获取
+
+配置文件中创建bean
 
 ```xml
 <bean id="happyComponent" class="com.hollis.ioc.component.HappyComponent">
@@ -1684,7 +1733,7 @@ bean 文件示例
 
 #### 构造器注入
 
-根据参数形式和个数，反射来获取指定的构造器创建 。实体类必须要有一个无参构造器，当没有参数传入时，也能正常被实例化 
+根据参数形式和个数，反射来获取指定的构造器创建 。**实体类必须要有一个无参构造器**，当没有参数传入时，也能正常被实例化 
 
 ```java
 public class HappyComponent implements HappyImp{
@@ -2302,7 +2351,66 @@ public Object notifyAround(ProceedingJoinPoint pjp) {
 
 
 
-#### 切面优先级 
+### 使用xml创建切面类
+
+理解基于注解创建以后，xml创建切面类的思想就会更好理解。 
+
+
+
+假设有切面类
+
+```java
+public class LogAspect {
+
+    @Pointcut("execution(* com.hollis.service.VideoService.*(..))")
+    public void bindVideoService(){}
+
+    @Before("bindVideoService()")
+    public void logBeforeMethod(){
+        System.out.println("函数前 记录");
+    }
+
+    @After("bindVideoService()")
+    public void logAfterMethod(){
+        System.out.println("函数后 记录");
+    }
+
+    @AfterReturning("bindVideoService()")
+    public void logReturnMethod(){
+        System.out.println("函数 返回 记录");
+    }
+
+}
+```
+
+在xml的配置容器中，开启对aop的支持，并且将切面类加入到容器
+
+```xml
+<aop:aspectj-autoproxy/>
+
+<bean id="logAspect" class="com.hollis.aop.LogAspect"/>
+```
+
+配置切面类，包括切入点的设置、通知方法的设置等
+
+```xml
+<!--aop配置-->
+<aop:config>
+    <!--        切入点表达式-->
+    <aop:pointcut id="bindAllMethods" expression="execution(* *..*.*(..))"/>
+    <!--        配置切面类-->
+    <aop:aspect id="logAspect" ref="logAspect">
+        <!--配置前置通知和后置通知-->
+        <aop:before method="logBeforeMethod" pointcut-ref="bindAllMethods"/>
+        <aop:after method="logAfterMethod" pointcut-ref="bindAllMethods"/>
+    </aop:aspect>
+
+</aop:config>
+```
+
+
+
+### 切面优先级 
 
 当有多个切面类绑定同一方法时，使用`@Order()` 注解来表明它们的优先级，数值越小，表明优先级越高。优先级高的切面类会包裹在最外面，依次类推。
 
@@ -2312,9 +2420,9 @@ public Object notifyAround(ProceedingJoinPoint pjp) {
 
 
 
-#### 获取方法细节
+### 获取切点细节
 
-通知方法，在切入点位置被执行。但是，其作用不仅仅于此，**它也可以通过一些手段来获取目标类的方法细节，目标方法的返回值、所抛出的异常等。**
+通知方法，可以通过一些手段来获取切点（目标方法）的细节、返回值、所抛出的异常等。
 
 核心思想是：用目标方法的签名对象，来获取方法的所有细节，例如权限修饰符、返回值、方法名、实际参数等。 
 
@@ -2382,7 +2490,7 @@ public void printLogAfterCoreException(JoinPoint joinPoint, Throwable targetMeth
 
 
 
-#### 切入点表达式
+### 切入点表达式
 
 ##### 基本格式
 
@@ -2521,7 +2629,6 @@ try{
 spring配置文件
 
 ```xml
-
 <!-- 开启基于注解的声明式事务功能 -->
 <!-- 使用transaction-manager属性指定当事务管理器的bean -->
 <!-- transaction-manager属性的默认值是transactionManager，如果事务管理器bean的id正好就是这个默认值-->
@@ -3283,7 +3390,7 @@ public String experimentOne(
 
 ## 拦截器
 
-拦截器的作用和servlet自带的过滤器类似，但是前者仅仅作用在spring mvc框架下，后者的范围是基于tomcat部署下的整个web应用。 
+拦截器的作用和servlet自带的过滤器类似，**但是前者仅仅作用在spring mvc框架下，后者的范围是基于tomcat部署下的整个web应用。** 
 
 
 
@@ -3932,3 +4039,297 @@ public interface EmpMapper {
 
 
 
+# Spring Boot
+
+## 创建项目
+
+创建maven工程，导入依赖
+
+```xml
+parent>
+ <groupId>org.springframework.boot</groupId>
+ <artifactId>spring-boot-starter-parent</artifactId>
+ <version>2.2.2.RELEASE</version>
+ <relativePath/> <!-- lookup parent from repository -->
+</parent>
+<dependencies>
+ <dependency>
+ <groupId>org.springframework.boot</groupId>
+ <artifactId>spring-boot-starter-web</artifactId>
+ </dependency>
+ <dependency>
+ <groupId>org.springframework.boot</groupId>
+ <artifactId>spring-boot-starter-test</artifactId>
+ <scope>test</scope>
+ <exclusions>
+ <exclusion>
+ <groupId>org.junit.vintage</groupId>
+ <artifactId>junit-vintage-engine</artifactId>
+ </exclusion>
+ </exclusions>
+ </dependency>
+ </dependencies>
+ <build>
+ <plugins>
+ <plugin>
+ <groupId>org.springframework.boot</groupId>
+ <artifactId>spring-boot-maven-plugin</artifactId>
+ </plugin>
+ </plugins>
+ </build>
+```
+
+在`src/main`包下，创建启动类，**该启动类和其余组件根目录位于同一层级，确保能够扫描到** 
+
+```java
+@SpringBootApplication // 注解
+class DemoApplication {
+
+    public static void main(String[] args) {
+        // 启动
+        SpringApplication.run(DemoApplication.class, args);
+    }
+}
+```
+
+
+
+## restful设计 
+
+boot框架使用jackson来处理json格式的转换，在controller返回popj对象即可 
+
+```java
+@ResponseBody
+@GetMapping("/hello")
+public Object hello(@RequestParam(value = "name", defaultValue = "World") String name) {
+    return  new Greeting(counter.incrementAndGet(), String.format(template, name));
+}
+```
+
+前段采用表单设计的话，`@RequestParam`  或者 使用实体类均可，但是，如果使用json格式提交的话，要使用 注解 RequestBody 来取出数据。
+
+
+
+json返回的数据格式，支持定制化，**在实体类中使用注解声明的方式即可**。
+
+* 忽略字段：@JsonIgnore ，双向，同时作用于前台提交、后台返回
+
+  ```java
+  @JsonIgnore
+  private String pwd;
+  ```
+
+* 指定日期：@JsonFormat() 
+
+  ```java
+  @JsonFormat(pattern = "yyyy-MM-dd hh:mm:ss",timezone = "GMT+8")
+  private Date createDate;
+  ```
+
+* 空字段不返回：@JsonInclude(Include.NON_NULL)
+
+*  指定别名：@JsonProperty
+
+  ```java
+  @JsonProperty("pub_time")
+  private Date createDate;
+  ```
+
+
+
+使用ObjectMapper进行序列化 和 反序列化
+
+```java
+public Object listUser() throws JsonProcessingException {
+    ObjectMapper obMapper  = new ObjectMapper();
+    List<User> userList = userService.listUser();
+    String jsonSting = obMapper.writeValueAsString(userList); // object2json
+    System.out.println(jsonSting);
+    return JsonData.success(obMapper.readValue(jsonSting,List.class)); // json2object
+}
+```
+
+
+
+
+
+## 属性文件读取 
+
+将属性文件转为一个bean对象 
+
+假设resources下有属性文件
+
+```properties
+wx.appid=123
+wx.user=hollis
+```
+
+在config下创建设置类 ，读取文件 
+
+```java
+@Component // 被扫描
+@PropertySource("classpath:wxpay.properties") // 属性文件位置
+public class WXConfig {
+    @Value("${wx.appid}") // ${属性名}
+    private String appID;
+    @Value("${wx.user}") 
+    private String user;
+
+    @Override
+    public String toString() {
+        return "WXConfig{" +
+                "appID='" + appID + '\'' +
+                ", user='" + user + '\'' +
+                '}';
+    }
+
+    public String getAppID() {
+        return appID;
+    }
+
+    public void setAppID(String appID) {
+        this.appID = appID;
+    }
+
+    public String getUser() {
+        return user;
+    }
+
+    public void setUser(String user) {
+        this.user = user;
+    }
+}
+```
+
+## 异常映射
+
+exception下创建类，用于异常映射 
+
+```java
+@RestControllerAdvice // 异常
+public class CustomExHandler {
+
+    @ExceptionHandler(value=Exception.class) // 触发的异常
+    public Object errorHandler(Exception e){
+        return JsonData.error(e.getMessage());
+    }
+}
+```
+
+在其余servlet请求中，如果出现了设置的异常，就会跳转到该类执行 
+
+## 过滤器
+
+创建servlet层级的过滤器，并注册。
+
+` filters`文件夹下创建过滤器 ，使用注解`@WebFilter`注册过滤器，并制定过滤路径 。
+
+```java
+@WebFilter(urlPatterns = "/user/login")
+public class AuthFilter implements Filter {
+   
+
+    @Override
+    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
+        HttpServletRequest req= (HttpServletRequest) request;
+        HttpServletResponse res= (HttpServletResponse) response;
+		
+          chain.doFilter(req,response); // 放行逻辑 
+          // return 过滤逻辑
+}
+```
+
+启动类中添加注解扫描 `@ServletComponentScan`
+
+## 拦截器
+
+interceptor下创建类，实现接口 
+
+```java
+public class LoginInterceptor implements HandlerInterceptor {
+    @Override
+    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+        System.out.println("pre handler 运行了");
+        return true;
+    }
+}
+```
+
+
+
+在文件夹下，创建一个设置类，用于拦截器的注册添加
+
+```java
+@Configuration
+public class CustomInterceptorConfiguration implements WebMvcConfigurer {
+
+    @Override
+    public void addInterceptors(InterceptorRegistry registry) {
+
+        registry.addInterceptor(getLoginInterceptor()).addPathPatterns("/pri/**");
+        WebMvcConfigurer.super.addInterceptors(registry);
+    }
+	
+    @Bean // 返回自己设计的拦截器
+    public LoginInterceptor getLoginInterceptor(){
+        return  new LoginInterceptor();
+    }
+}
+```
+
+
+
+过滤器和拦截器比较：
+
+* 二者都是AOP编程思想的体现，功能基本都可以实现 拦截器功能更强⼤些，Filter能做的事情它都能做
+*  Filter在只在Servlet前后起作⽤，⽽Interceptor够深⼊到⽅法前后、异常抛出前后等 
+* filter依赖于Servlet容器即web应⽤中，⽽Interceptor不依赖于Servlet容器所以可以运⾏在 多种环境。 
+* 在接⼝调⽤的⽣命周期⾥，Interceptor可以被多次调⽤，⽽Filter只能在容器初始化时调⽤⼀ 次。 
+
+
+
+## 定时任务 
+
+schedule下创建类，用于定时任务
+
+```java
+@Component
+public class VideoTaskScheduler {
+
+    @Scheduled(fixedRate = 2000)  // ms 定时执行
+    public void sum(){
+        System.out.println(LocalTime.now()+" 当前交易额："+Math.random()*100);
+    }
+}
+```
+
+启动类添加注解`@EnableScheduling`
+
+## 异步任务
+
+task下创建异步任务类，使用注解标记该类为异步执行 
+
+```java
+@Component
+@Async
+public class Task {
+    public Future<String> task(){
+        // Future<T>
+        try {
+            Thread.sleep(4000L);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        return new AsyncResult<String>("异步任务执行完成"); // 返回执行结果 new AsyncResult<T>(value)
+    }
+}
+```
+
+启动类中中添加注解`@EnableAsync`
+
+
+
+## 部署 
+
+1. mvn install 生成jar包 
+2. 将该jar包部署到服务器 

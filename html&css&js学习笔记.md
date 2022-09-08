@@ -1146,7 +1146,7 @@ var aList2 = [1,2,3]; //方法2
 
 * 反转：`.reverse()`反转。原地修改。
 
-* 删除/添加元素：`splice(index,howmany,item1,.....,itemX)` ，找到原数组中index的位置，删除howmany个元素，然后插入新的元素，item1…………itemX 。原地修改。
+* 删除/添加元素：`splice(index,howmany,item1,.....,itemX)` ，找到原数组中index的位置，删除howmany个元素，然后插入新的元素，itemX 。原地修改。
 
 * 检查元素：`some(func)` ，对元素进行检查，如果有一个为真，则停止检查，返回true 
 

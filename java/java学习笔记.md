@@ -79,17 +79,21 @@ java ee （enterprise edition）为企业版本，**在se的基础上，添砖�
 
 
 
-# 程序入口
+# 程序编译
 
 Java程序的入口是main方法
 
 ```java
-public static void main(String[] args){
+
+public class HelloWord{
+    public static void main(String[] args){
     
+	}
 }
+
 ```
 
-源文件格式为`.java`，可以有多个类，**其中的public类必须唯一且与源文件名一致**。main入口推荐写在public类中。
+源码后缀格式为java，类名文件名一致。java中函数不能单独存在，必须存在作为容器的class类中。
 
 main方法详解
 
@@ -99,7 +103,9 @@ main方法详解
 - main 固定方法名称
 - args  字符串的数组。JVM调用方法main必须传递参数，后期对JVM设置参数
 
-# 编译
+
+
+编译
 
 ```shell
 javac HelloWorld.java # c表示compile的意思
@@ -124,10 +130,13 @@ javac -encoding utf-8 Review01.java
 
 输入
 
+1. 
+
 ```java
 import java.util.Scanner 
-    
-Scanner scanner = new Scanner(System.in);  // inital ,read from stdin
+
+// 构造 Scanner 对象 ，并绑定到标准输入流
+Scanner scanner = new Scanner(System.in);  
 
 // int 
 int age = scanner.nextInt();  // int(input)
@@ -137,8 +146,11 @@ System.out.println("age="+age);
 System.out.print("请输入一个布尔值：");
 boolean flag = scanner.nextBoolean();
 
-// string 
-String strValue = scanner.next(); // 读取到空格停止
+
+// 读取到空格结束
+String strValue = scanner.next(); 
+
+// 一次读取一行
 strValue = scanner.nextLine(); // 读取到回车停止 input()
 ```
 
@@ -406,7 +418,7 @@ a.intValue() // Integer 转 int
 
 
 
-# 数组
+## 数组
 
 创建。数组的长度一经确定，就不再允许修改
 
@@ -434,14 +446,7 @@ int[] numberArray = {5, 7, 11, 13, 17, 19};
 
 * 填充：`.fill(Object[] array,Object object)`  
 
-* 转为字符串输出打印：`.toString(Object[] array)` ，直接打印会显示数据的地址
-
-  ```java
-  int[] nums = {2,5,0,4,1,-10};
-  System.out.println(Arrays.toString(nums));
-  /*
-  * 结果:[2, 5, 0, 4, 1, -10]
-  */
+* 转为字符串输出打印：`.toString(Object[] array)` ，直接打印会显示数据的地址。快速打印多维数组，`deepToString(Array)` 
 
 * 转换stream流 ：`.stream(array)`  
 
@@ -463,62 +468,13 @@ arr2d02[1] = new int[]{14, 21, 66, 89};
 arr2d02[2] = new int[]{90, 100};
 ```
 
+
+
 # String
 
-```java
-// 字符串一经创建，不允许修改
-String name = "hollis"; // 存储在公共池中
-String name = new String("hollis"); // 存储在堆中
-```
+## String
 
-
-
-* 获取字符串长度 ：`.length()`
-
-* 拼接：`concat(string2)`  或者`+` 操作符，返回 string2 连接 string1 的新字符串
-
-* 格式化：静态函数，`String.format("格式控制符",变量)`
-
-  ```java
-  double age = 25;
-  String name = "hollis";
-  System.out.println(String.format("name:%s\nage:%.2f\n",name,age));
-  ```
-
-* 返回第i个字符：`.chatAt(index)` 
-
-
-
-### String
-
-字符串的实现原理是用char[]数组表示。
-
-
-
-String类的构造方法：
-
-* `String(byte[] b)` 字节数组转成字符串,使用平台的默认字符集
-
-  ```java
-  byte[] bytes = {97,98,99,100};
-  String str = new String(bytes);
-  ```
-
-* `String(byte[] b,int off,int len)` 字节数组转成字符串,使用平台的默认字符集,参数off数组的开始索引,len要转的个数
-
-* `String(byte[] b,int off,int,len,String,charsetName)` ：字节数组转成字符串,使用平台的默认字符集,参数off数组的开始索引,len要转的个数,charsetName参数是你自己可以指定编码表
-
-
-
-String 和 char数组互换
-
-```java
-char[] s = {'1','2','3'};
-String a = new String(s); // char[] ==> string 
-char[] b = a.toCharArray(); // string ==> char[]
-```
-
-
+字符串的实现原理是用char[]数组表示，创建后不可更改。
 
 
 
@@ -530,11 +486,14 @@ String类的常用方法：
 - boolean endsWith(String str)判断字符串是否以另一个字符串结尾,是结尾就返回true
 - boolean contains(String str) 判断字符串中是否包含另一个字符串,完全包含返回true
 - boolean isEmpty()判断字符串的长度是不是0,如果是0返回true
+- char[] toCharArray()： 转为char数组
 - **int length() ：字符串的长度获取依赖函数调用**
 - char **charAt(int index) 返回指定索引上的单个字符**
 - int indexOf(String str) 返回指定的字符串,在当前字符串中第一次出现的索引
 - int lastIndexOf(String str) 返回指定的字符串,在当前字符串中最后一次出现的索引
 - String **substring(int start,int end) ：截取字符串,参数表示开始索引和结束索引,包含开头索引,不包含结束索引**
+
+**在java中，字符串比较，尤其注意`==`表示内存地址比较，而`.equals()`用于内容比较。**
 
 
 
@@ -554,77 +513,35 @@ String类的转换方法
 
 
 
-**在java中，尤其注意`==`表示内存地址比较，而`.equals()`可以自定义，常用于内容比较。**
+## StringBuilder
 
-注意下面的`s7 == (s5+s6)`，和 `s7 == ("how"+"you")`，两者结果并不相等。
+ StringBuilder，**一个可变的字符序列**，字符序列就是字符数组。 StringBuilder类是线程不安全的类，运行速度快 , 推荐使用StringBuilder。StringBuffer是线程安全的类，运行速度慢。
 
-```java
-String s1= "hello",s2 = "world";
-System.out.println((s1 + s2).equals("helloworld")); // true
-System.out.println(s1 + s2 == "helloworld"); // false
+builder可以理解为：
+
+```python
+s = list(s) 
 ```
 
-​	
-
-### StringBuilder
-
- StringBuilder，**一个可变的字符序列**，字符序列就是字符数组。 StringBuilder类是线程不安全的类,运行速度快 , 推荐使用StringBuilder。StringBuffer是线程安全的类,运行速度慢,多线程的程序,使用StringBuffer 
-
-```java
-// String 的原理就是一个被final修饰的char数组 
-String: private final char[] value;  // final 锁死
-StringBuilder : char[] value; // 可变
-```
-
- 创建对象的时候，StringBuilder中的数组的初始化长度为16个字符，StringBuilder自动的进行数组的扩容，新数组实现将原来数组的中元素复制到新的数组。
 
 
+常用方法：
+
+* new StringBuilder()：构造空的builder
 
 * `StringBuilder append(任意类型) `：参数追加成字符串，相当于是字符串里面的 + String(value)
 
 * `StringBuilder insert(int 索引, 任意类型)`：可以将任意类型的参数,插入到字符串缓冲区,指定索引
 
-  ```java
-  /*
-  * StringBuilder类的方法insert,指定位置,插入元素
-  */
-  
-  public static void builderInsert(){
-      StringBuilder builder = new StringBuilder();
-      builder.append("bcdef");
-      //指定的索引上,添加字符串,原有字符,顺延
-      builder.insert(2,"QQ");
-      System.out.println("builder = " + builder);
-  }
-  ```
-
 * `int length() `：返回字符串缓冲区的长度
 
 * `StringBuilder delete(int start,int end)`：删除缓冲区中的字符,包含开头索引，不包含结束索引
 
-* `void setCharAt(int 索引,char ch)`：修改指定元素上的字符
+* `void setCharAt(int 索引,char ch)`：修改指定元素上的字符，不支持`[index]`直接修改
 
 * `StringBuilder reverse()` ：翻转字符串
 
-
-
-StringBuilder对象和String对象转换：
-
-```java
-/*
-*  StringBuilder -> String
-*/
-    public static void stringBuilderToString(){
-        StringBuilder builder = new StringBuilder();
-        builder.append("我是字符串的缓冲区");
-
-        String str = builder.toString();  //builder对象转成String对象
-        System.out.println(str);
-
-        String s = new String(builder);  //String类的构造方法
-        System.out.println(s);
-   }
-```
+* String toString()：builder转String 
 
 
 
@@ -1185,16 +1102,6 @@ public class Person {
 Person p = new Person();
 ```
 
-
-
-### equals 和 ==
-
-`==` 操作符被用于比较内存地址，
-
-`.equals()` 方法被用于引用对象的比较，**不被重写的情况下**，等效于`==`。
-
-
-
 ### 修饰符
 
 修饰符的位置在函数返回类型前，如
@@ -1323,7 +1230,6 @@ import java.util.*; // 全部导入
 ```
 
 - 使用的位置：在package声明和类声明之间
-- **如果导入的类或接口是java.lang包下的，或者是当前包下的，则可以省略此import语句。**
 - **如果导入一个类之后，又需要用到另一个同名的类，那么就需要使用全类名来引用**（没有pytho中取别名的做法）
 
 ```java
@@ -1342,7 +1248,14 @@ public class ImportTest {
 }
 ```
 
-- import static组合的使用：静态导入。让当前类可以直接调用导入的类中的静态属性或方法，不必写类名了。
+- import static组合的使用：静态导入，导入调用类中的静态属性或方法，不必写类名了。
+
+  ```java
+  import static java.lang.System.*;
+  out.printlbn("hello world"); // 省略类名
+  ```
+
+  
 
 
 
@@ -1610,26 +1523,21 @@ public static void main(String[] args) {
 
 ### 静态代码块
 
-使用`{}`包裹的，static修饰，新建实例的时候，会被运行一次
+使用`{}`包裹
 
 ```java
 class Person{
     static{
-        // 静态代码块 只有第一次new的时候才会运行 
-    }
+        // 静态代码块 只有第一次new的时候才会运行
+        // 用于初始化复杂的类属性
+    } 
     {
         // 非静态代码块
         // 每new一次就会运行一次
+        // 优先于构造器执行
     }
 }
 ```
-
-
-
-当一个类中存在静态代码块、非静态代码块时，他们的执行顺序是这样的：
-
-* 静态的优于非静态的 
-* 代码块优于构造器 
 
 
 
@@ -3903,15 +3811,22 @@ Optional是个容器，它可以保存类型T的值，或者仅仅保存null。�
 
 ## 概念 
 
-JDBC：Java Database Connectivity，**一组独立于任何数据库管理系统（DBMS）的API**。
-
-它的声明在java.sql与javax.sql包中，是SUN提供的**一组接口规范**。由各个数据库厂商来提供实现类，这些实现类的集合构成了数据库驱动jar。
+JDBC：Java Database Connectivity，是SUN提供的**一组操作数据库的接口规范**。由各个数据库厂商来提供实现类，这些实现类的集合构成了数据库驱动jar。
 
 ![image-20220506094048348](https://hollis-md.oss-cn-beijing.aliyuncs.com/img/image-20220506094048348.png)
 
 
 
 ## 连接使用
+
+引入依赖 
+
+```xml
+<dependency>
+    <groupId>mysql</groupId>
+    <artifactId>mysql-connector-java</artifactId>
+</dependency>
+```
 
 连接数据库的基本步骤
 
@@ -3922,7 +3837,7 @@ JDBC：Java Database Connectivity，**一组独立于任何数据库管理系统
 
 ```java
 public void testConnection() throws ClassNotFoundException, SQLException {
-    Class.forName("com.mysql.jdbc.Driver");  // reflect, create a JDBC object 
+    Class.forName("com.mysql.jdbc.Driver");  // 数据库驱动
 
     // schema://host:port/database?params
     String url = "jdbc:mysql://localhost:3306/day04?useUnicode=true&characterEncoding=utf8";
